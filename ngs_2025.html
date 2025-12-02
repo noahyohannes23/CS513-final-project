@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DataFrame Schema</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .dtype {
+            color: #e91e63;
+            font-family: monospace;
+        }
+        .nulls {
+            color: #ff9800;
+        }
+        .unique {
+            color: #4CAF50;
+        }
+        .samples {
+            color: #2196F3;
+            font-size: 0.9em;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <h1>DataFrame Schema</h1>
+    <div class="info">
+        <strong>Dimensions:</strong> 736 rows × 28 columns
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Column</th>
+                <th>Data Type</th>
+                <th>Nulls</th>
+                <th>Unique Values</th>
+                <th>Sample Values</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>page</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">9</td>
+                <td class="samples">ppr-wr, db, dst, qb, dl</td>
+            </tr>
+
+            <tr>
+                <td><strong>page_pos</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">9</td>
+                <td class="samples">TE, DL, LB, RB, DST</td>
+            </tr>
+
+            <tr>
+                <td><strong>scrape_date</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">1</td>
+                <td class="samples">2025-11-27</td>
+            </tr>
+
+            <tr>
+                <td><strong>fantasypros_id</strong></td>
+                <td class="dtype">Int64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">736</td>
+                <td class="samples">8000, 8010, 8020, 8030, 8040</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_name</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">736</td>
+                <td class="samples">Gunnar Helm, Harrison Butker, Will Anderson, Devin Lloyd, Luke Schoonmaker</td>
+            </tr>
+
+            <tr>
+                <td><strong>pos</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">9</td>
+                <td class="samples">K, DB, RB, LB, QB</td>
+            </tr>
+
+            <tr>
+                <td><strong>team</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">33</td>
+                <td class="samples">MIN, TB, PIT, SEA, CLE</td>
+            </tr>
+
+            <tr>
+                <td><strong>rank</strong></td>
+                <td class="dtype">Int64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">152</td>
+                <td class="samples">1, 2, 3, 4, 5</td>
+            </tr>
+
+            <tr>
+                <td><strong>ecr</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">662</td>
+                <td class="samples">1.0, 1.14, 1.2, 1.22, 1.29</td>
+            </tr>
+
+            <tr>
+                <td><strong>sd</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">496</td>
+                <td class="samples">0.0, 0.31, 0.35, 0.39, 0.45</td>
+            </tr>
+
+            <tr>
+                <td><strong>best</strong></td>
+                <td class="dtype">Int64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">124</td>
+                <td class="samples">1, 2, 3, 4, 5</td>
+            </tr>
+
+            <tr>
+                <td><strong>worst</strong></td>
+                <td class="dtype">Int64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">151</td>
+                <td class="samples">1, 2, 3, 4, 5</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_positions</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">11</td>
+                <td class="samples">LB, CB, DT, DST, QB</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_short_name</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">712</td>
+                <td class="samples">D. Henry, LAC DST, N. Chubb, Q. Walker, J. Browning</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_eligibility</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">19</td>
+                <td class="samples">QB, CB, LB,DE, S,CB, DT,LB</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_page_url</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">736</td>
+                <td class="samples">https://www.fantasypros.com/nfl/players/cincinnati, https://www.fantasypros.com/nfl/players/hunter-hen, https://www.fantasypros.com/nfl/players/jonathan-g, https://www.fantasypros.com/nfl/players/cedric-gra, https://www.fantasypros.com/nfl/players/chamarri-c</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_filename</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">736</td>
+                <td class="samples">dante-miller.php, chris-moore.php, nathan-landman.php, thomas-harper.php, xavier-woods.php</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_bye_week</strong></td>
+                <td class="dtype">Int64</td>
+                <td class="nulls">2 (0.3%)</td>
+                <td class="unique">10</td>
+                <td class="samples">5, 6, 7, 8, 9</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_owned_avg</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">358</td>
+                <td class="samples">0.0, 0.1, 0.2, 0.4, 0.6</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_opponent</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">2 (0.3%)</td>
+                <td class="unique">33</td>
+                <td class="samples">at SEA, vs. SF, at WAS, at CAR, at LAC</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_opponent_id</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">2 (0.3%)</td>
+                <td class="unique">33</td>
+                <td class="samples">NO, ATL, BUF, IND, WAS</td>
+            </tr>
+
+            <tr>
+                <td><strong>player_ecr_delta</strong></td>
+                <td class="dtype">Int64</td>
+                <td class="nulls">638 (86.7%)</td>
+                <td class="unique">33</td>
+                <td class="samples">-23, -17, -15, -14, -13</td>
+            </tr>
+
+            <tr>
+                <td><strong>note</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">664 (90.2%)</td>
+                <td class="unique">73</td>
+                <td class="samples">Micah was excellent in Week 12, notching two solos, Landry showed up in Week 12, reeling off three sol, Latu was excellent in Week 12, racking up two solo, Evan Williams stayed hot in Week 12, racking up fo, Blankenship was excellent in Week 12, racking up t</td>
+            </tr>
+
+            <tr>
+                <td><strong>tag</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">677 (92.0%)</td>
+                <td class="unique">3</td>
+                <td class="samples">start, sit</td>
+            </tr>
+
+            <tr>
+                <td><strong>recommendation</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">727 (98.8%)</td>
+                <td class="unique">3</td>
+                <td class="samples">streak, injury</td>
+            </tr>
+
+            <tr>
+                <td><strong>pos_rank</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">736</td>
+                <td class="samples">K8, LB22, TE61, LB60, RB92</td>
+            </tr>
+
+            <tr>
+                <td><strong>start_sit_grade</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">264 (35.9%)</td>
+                <td class="unique">14</td>
+                <td class="samples">B, D, D+, C+, D-</td>
+            </tr>
+
+            <tr>
+                <td><strong>r2p_pts</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">188</td>
+                <td class="samples">0.0, 0.1, 0.2, 0.3, 0.4</td>
+            </tr>
+
+        </tbody>
+    </table>
+</body>
+</html>

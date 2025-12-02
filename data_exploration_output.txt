@@ -1,0 +1,62 @@
+================================================================================
+NFL DATA EXPLORATION WITH CACHING
+================================================================================
+
+[1/8] Play-by-Play Data
+   [CACHE HIT] Loading pbp from cache: nfl_data_cache\pbp_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\01_pbp_exploration.txt
+
+[2/8] Participation Data
+   [CACHE HIT] Loading participation from cache: nfl_data_cache\participation_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\02_participation_exploration.txt
+
+[3/8] Injuries Data
+   [CACHE HIT] Loading injuries from cache: nfl_data_cache\injuries_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\03_injuries_exploration.txt
+
+[4/8] Schedules Data
+   [CACHE HIT] Loading schedules from cache: nfl_data_cache\schedules_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\04_schedules_exploration.txt
+
+[5/8] Rosters Data
+   [CACHE HIT] Loading rosters from cache: nfl_data_cache\rosters_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\05_rosters_exploration.txt
+
+[6/8] Snap Counts Data
+   [CACHE HIT] Loading snap_counts from cache: nfl_data_cache\snap_counts_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\06_snap_counts_exploration.txt
+
+[7/8] Depth Charts Data
+   [CACHE HIT] Loading depth_charts from cache: nfl_data_cache\depth_charts_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\07_depth_charts_exploration.txt
+
+[8/8] NextGen Stats Data (Passing)
+   [CACHE HIT] Loading nextgen_pass from cache: nfl_data_cache\nextgen_pass_2023.parquet
+   [SAVED] Exploration saved to exploration_outputs\08_nextgen_pass_exploration.txt
+
+================================================================================
+EXPLORATION COMPLETE!
+================================================================================
+
+Cached data saved to: nfl_data_cache
+Exploration reports saved to: exploration_outputs
+
+Cache files:
+  - depth_charts_2023.parquet                (0.41 MB)
+  - injuries_2023.parquet                    (0.10 MB)
+  - nextgen_pass_2023.parquet                (0.07 MB)
+  - participation_2023.parquet               (2.40 MB)
+  - pbp_2023.parquet                         (12.76 MB)
+  - rosters_2023.parquet                     (0.33 MB)
+  - schedules_2023.parquet                   (0.03 MB)
+  - snap_counts_2023.parquet                 (0.24 MB)
+
+Exploration reports:
+  - 01_pbp_exploration.txt
+  - 02_participation_exploration.txt
+  - 03_injuries_exploration.txt
+  - 04_schedules_exploration.txt
+  - 05_rosters_exploration.txt
+  - 06_snap_counts_exploration.txt
+  - 07_depth_charts_exploration.txt
+  - 08_nextgen_pass_exploration.txt

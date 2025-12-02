@@ -1,0 +1,85 @@
+================================================================================
+EXPLORATION: NextGen Passing Stats 2023
+Generated: 2025-11-28 16:05:56.885244
+================================================================================
+
+Shape: (620, 29)
+Rows: 620
+Columns: 29
+Memory: 0.11 MB
+
+COLUMNS:
+--------------------------------------------------------------------------------
+  1. season                                   Int32           (0 nulls, 0.0%)
+  2. season_type                              String          (0 nulls, 0.0%)
+  3. week                                     Int32           (0 nulls, 0.0%)
+  4. player_display_name                      String          (0 nulls, 0.0%)
+  5. player_position                          String          (0 nulls, 0.0%)
+  6. team_abbr                                String          (0 nulls, 0.0%)
+  7. avg_time_to_throw                        Float64         (0 nulls, 0.0%)
+  8. avg_completed_air_yards                  Float64         (0 nulls, 0.0%)
+  9. avg_intended_air_yards                   Float64         (0 nulls, 0.0%)
+ 10. avg_air_yards_differential               Float64         (0 nulls, 0.0%)
+ 11. aggressiveness                           Float64         (0 nulls, 0.0%)
+ 12. max_completed_air_distance               Float64         (0 nulls, 0.0%)
+ 13. avg_air_yards_to_sticks                  Float64         (0 nulls, 0.0%)
+ 14. attempts                                 Int32           (0 nulls, 0.0%)
+ 15. pass_yards                               Int32           (0 nulls, 0.0%)
+ 16. pass_touchdowns                          Int32           (0 nulls, 0.0%)
+ 17. interceptions                            Int32           (0 nulls, 0.0%)
+ 18. passer_rating                            Float64         (0 nulls, 0.0%)
+ 19. completions                              Int32           (0 nulls, 0.0%)
+ 20. completion_percentage                    Float64         (0 nulls, 0.0%)
+ 21. expected_completion_percentage           Float64         (0 nulls, 0.0%)
+ 22. completion_percentage_above_expectation  Float64         (0 nulls, 0.0%)
+ 23. avg_air_distance                         Float64         (0 nulls, 0.0%)
+ 24. max_air_distance                         Float64         (0 nulls, 0.0%)
+ 25. player_gsis_id                           String          (0 nulls, 0.0%)
+ 26. player_first_name                        String          (0 nulls, 0.0%)
+ 27. player_last_name                         String          (0 nulls, 0.0%)
+ 28. player_jersey_number                     Int32           (0 nulls, 0.0%)
+ 29. player_short_name                        String          (0 nulls, 0.0%)
+
+================================================================================
+SAMPLE DATA (First 5 rows):
+================================================================================
+shape: (5, 29)
+┌────────┬─────────────┬──────┬────────────┬───┬────────────┬────────────┬────────────┬────────────┐
+│ season ┆ season_type ┆ week ┆ player_dis ┆ … ┆ player_fir ┆ player_las ┆ player_jer ┆ player_sho │
+│ ---    ┆ ---         ┆ ---  ┆ play_name  ┆   ┆ st_name    ┆ t_name     ┆ sey_number ┆ rt_name    │
+│ i32    ┆ str         ┆ i32  ┆ ---        ┆   ┆ ---        ┆ ---        ┆ ---        ┆ ---        │
+│        ┆             ┆      ┆ str        ┆   ┆ str        ┆ str        ┆ i32        ┆ str        │
+╞════════╪═════════════╪══════╪════════════╪═══╪════════════╪════════════╪════════════╪════════════╡
+│ 2023   ┆ REG         ┆ 0    ┆ Jake       ┆ … ┆ Jake       ┆ Browning   ┆ 6          ┆ J.Browning │
+│        ┆             ┆      ┆ Browning   ┆   ┆            ┆            ┆            ┆            │
+│ 2023   ┆ REG         ┆ 0    ┆ Desmond    ┆ … ┆ Desmond    ┆ Ridder     ┆ 9          ┆ D.Ridder   │
+│        ┆             ┆      ┆ Ridder     ┆   ┆            ┆            ┆            ┆            │
+│ 2023   ┆ REG         ┆ 0    ┆ Gardner    ┆ … ┆ Gardner    ┆ Minshew    ┆ 10         ┆ G.Minshew  │
+│        ┆             ┆      ┆ Minshew    ┆   ┆            ┆            ┆            ┆            │
+│ 2023   ┆ REG         ┆ 0    ┆ Will Levis ┆ … ┆ Will       ┆ Levis      ┆ 8          ┆ W.Levis    │
+│ 2023   ┆ REG         ┆ 0    ┆ Jalen      ┆ … ┆ Jalen      ┆ Hurts      ┆ 1          ┆ J.Hurts    │
+│        ┆             ┆      ┆ Hurts      ┆   ┆            ┆            ┆            ┆            │
+└────────┴─────────────┴──────┴────────────┴───┴────────────┴────────────┴────────────┴────────────┘
+
+================================================================================
+NUMERIC COLUMN STATISTICS:
+================================================================================
+shape: (9, 22)
+┌────────────┬────────┬──────────┬────────────┬───┬────────────┬───────────┬───────────┬───────────┐
+│ statistic  ┆ season ┆ week     ┆ avg_time_t ┆ … ┆ completion ┆ avg_air_d ┆ max_air_d ┆ player_je │
+│ ---        ┆ ---    ┆ ---      ┆ o_throw    ┆   ┆ _percentag ┆ istance   ┆ istance   ┆ rsey_numb │
+│ str        ┆ f64    ┆ f64      ┆ ---        ┆   ┆ e_above_ex ┆ ---       ┆ ---       ┆ er        │
+│            ┆        ┆          ┆ f64        ┆   ┆ …          ┆ f64       ┆ f64       ┆ ---       │
+│            ┆        ┆          ┆            ┆   ┆ ---        ┆           ┆           ┆ f64       │
+│            ┆        ┆          ┆            ┆   ┆ f64        ┆           ┆           ┆           │
+╞════════════╪════════╪══════════╪════════════╪═══╪════════════╪═══════════╪═══════════╪═══════════╡
+│ count      ┆ 620.0  ┆ 620.0    ┆ 620.0      ┆ … ┆ 620.0      ┆ 620.0     ┆ 620.0     ┆ 620.0     │
+│ null_count ┆ 0.0    ┆ 0.0      ┆ 0.0        ┆ … ┆ 0.0        ┆ 0.0       ┆ 0.0       ┆ 0.0       │
+│ mean       ┆ 2023.0 ┆ 9.309677 ┆ 2.809396   ┆ … ┆ 0.034163   ┆ 21.187214 ┆ 47.950779 ┆ 8.617742  │
+│ std        ┆ 0.0    ┆ 6.010564 ┆ 0.278072   ┆ … ┆ 7.68425    ┆ 2.13786   ┆ 8.244117  ┆ 4.973988  │
+│ min        ┆ 2023.0 ┆ 0.0      ┆ 2.078067   ┆ … ┆ -27.880013 ┆ 14.875536 ┆ 25.149362 ┆ 1.0       │
+│ 25%        ┆ 2023.0 ┆ 4.0      ┆ 2.617156   ┆ … ┆ -4.836792  ┆ 19.869049 ┆ 41.902327 ┆ 4.0       │
+│ 50%        ┆ 2023.0 ┆ 9.0      ┆ 2.800936   ┆ … ┆ -0.164484  ┆ 21.032387 ┆ 48.506185 ┆ 9.0       │
+│ 75%        ┆ 2023.0 ┆ 15.0     ┆ 2.960529   ┆ … ┆ 4.929817   ┆ 22.381958 ┆ 54.391953 ┆ 13.0      │
+│ max        ┆ 2023.0 ┆ 23.0     ┆ 3.802708   ┆ … ┆ 27.956938  ┆ 29.356761 ┆ 67.4594   ┆ 18.0      │
+└────────────┴────────┴──────────┴────────────┴───┴────────────┴───────────┴───────────┴───────────┘

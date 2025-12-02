@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DataFrame Schema</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .dtype {
+            color: #e91e63;
+            font-family: monospace;
+        }
+        .nulls {
+            color: #ff9800;
+        }
+        .unique {
+            color: #4CAF50;
+        }
+        .samples {
+            color: #2196F3;
+            font-size: 0.9em;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <h1>DataFrame Schema</h1>
+    <div class="info">
+        <strong>Dimensions:</strong> 46,168 rows × 26 columns
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Column</th>
+                <th>Data Type</th>
+                <th>Nulls</th>
+                <th>Unique Values</th>
+                <th>Sample Values</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td><strong>nflverse_game_id</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">285</td>
+                <td class="samples">2023_01_LV_DEN, 2023_17_TEN_HOU, 2023_11_CHI_DET, 2023_06_MIN_CHI, 2023_02_CHI_TB</td>
+            </tr>
+
+            <tr>
+                <td><strong>old_game_id</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">285</td>
+                <td class="samples">2023122402, 2023102205, 2023092408, 2023101503, 2023111903</td>
+            </tr>
+
+            <tr>
+                <td><strong>play_id</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">4749</td>
+                <td class="samples">38.0, 39.0, 40.0, 41.0, 42.0</td>
+            </tr>
+
+            <tr>
+                <td><strong>possession_team</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">32</td>
+                <td class="samples">NO, GB, LA, SEA, BAL</td>
+            </tr>
+
+            <tr>
+                <td><strong>offense_formation</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">9209 (19.9%)</td>
+                <td class="unique">4</td>
+                <td class="samples">PISTOL, SHOTGUN, UNDER CENTER</td>
+            </tr>
+
+            <tr>
+                <td><strong>offense_personnel</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">1468</td>
+                <td class="samples">1 CB, 1 LS, 4 MLB, 1 P, 1 RB, 1 SS, 1 TE, 1 WR, 1 CB, 1 FB, 1 FS, 3 ILB, 1 LS, 1 OLB, 1 P, 2 TE, 1 CB, 1 FS, 3 MLB, 1 OLB, 2 RB, 1 SS, 1 TE, 1 WR, 1 FS, 3 ILB, 1 LS, 1 OLB, 1 P, 1 RB, 1 SS, 2 TE, 1 CB, 1 FB, 2 FS, 2 ILB, 1 LS, 1 OLB, 1 P, 1 RB, 1</td>
+            </tr>
+
+            <tr>
+                <td><strong>defenders_in_box</strong></td>
+                <td class="dtype">Int32</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">12</td>
+                <td class="samples">0, 1, 2, 3, 4</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_personnel</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">2967</td>
+                <td class="samples">2 CB, 2 DE, 2 ILB, 4 OLB, 1 SS, 4 CB, 2 DE, 2 FS, 1 ILB, 1 OLB, 1 SS, 1 CB, 2 DE, 3 DT, 2 MLB, 2 OLB, 1 SS, 3 CB, 1 FS, 2 ILB, 1 OLB, 1 P, 1 SS, 2 WR, 1 CB, 3 FS, 2 ILB, 1 K, 1 RB, 1 SS, 1 TE, 1 WR</td>
+            </tr>
+
+            <tr>
+                <td><strong>number_of_pass_rushers</strong></td>
+                <td class="dtype">Int32</td>
+                <td class="nulls">1294 (2.8%)</td>
+                <td class="unique">12</td>
+                <td class="samples">0, 1, 2, 3, 4</td>
+            </tr>
+
+            <tr>
+                <td><strong>players_on_play</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">33214</td>
+                <td class="samples">00-0037825;00-0035239;00-0036416;00-0038125;00-003, 00-0036391;00-0037278;00-0033697;00-0036617;00-003, 00-0035686;00-0038936;00-0034203;00-0034516;00-003, 00-0034278;00-0038552;00-0036124;00-0036748;00-003, 00-0032383;00-0034203;00-0036974;00-0033064;00-003</td>
+            </tr>
+
+            <tr>
+                <td><strong>offense_players</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">13593</td>
+                <td class="samples">00-0036636;00-0037295;00-0038595;00-0035282;00-003, 00-0030585;00-0031581;00-0036132;00-0028118;00-003, 00-0034495;00-0035141;00-0036417;00-0030565;00-003, 00-0036678;00-0032496;00-0037560;00-0037043;00-003, 00-0035686;00-0031580;00-0039163;00-0034208;00-003</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_players</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">17247</td>
+                <td class="samples">00-0027943;00-0034468;00-0034514;00-0039167;00-003, 00-0033926;00-0034356;00-0031795;00-0037203;00-003, 00-0036874;00-0038105;00-0037384;00-0035248;00-003, 00-0034780;00-0035244;00-0036937;00-0038121;00-003, 00-0035239;00-0036416;00-0038125;00-0035643;00-003</td>
+            </tr>
+
+            <tr>
+                <td><strong>n_offense</strong></td>
+                <td class="dtype">Int32</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">4</td>
+                <td class="samples">10, 11, 12, 13</td>
+            </tr>
+
+            <tr>
+                <td><strong>n_defense</strong></td>
+                <td class="dtype">Int32</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">5</td>
+                <td class="samples">9, 10, 11, 12, 13</td>
+            </tr>
+
+            <tr>
+                <td><strong>ngs_air_yards</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">46168 (100.0%)</td>
+                <td class="unique">1</td>
+                <td class="samples"></td>
+            </tr>
+
+            <tr>
+                <td><strong>time_to_throw</strong></td>
+                <td class="dtype">Float64</td>
+                <td class="nulls">25862 (56.0%)</td>
+                <td class="unique">436</td>
+                <td class="samples">0.1, 0.2, 0.3, 0.4, 0.5</td>
+            </tr>
+
+            <tr>
+                <td><strong>was_pressure</strong></td>
+                <td class="dtype">Boolean</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">2</td>
+                <td class="samples">False, True</td>
+            </tr>
+
+            <tr>
+                <td><strong>route</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">14</td>
+                <td class="samples">QUICK OUT, SCREEN, , HITCH/CURL, WHEEL</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_man_zone_type</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">3</td>
+                <td class="samples">MAN_COVERAGE, , ZONE_COVERAGE</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_coverage_type</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">23252 (50.4%)</td>
+                <td class="unique">11</td>
+                <td class="samples">COVER_4, COVER_3, COVER_0, COMBO, 2_MAN</td>
+            </tr>
+
+            <tr>
+                <td><strong>offense_names</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">13651</td>
+                <td class="samples">Tyler Biadasz;Zack Martin;Dak Prescott;Chuma Edoga, Ethan Pocic;Joel Bitonio;Wyatt Teller;Deshaun Wats, Ameer Speed;Kyle Dugger;Calvin Munson;Chris Board;, Lucas Patrick;Cody Whitehair;Ja'Tyre Carter;Justin, Taven Bryan;Quenton Nelson;Jack Anderson;Will Frie</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_names</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">17323</td>
+                <td class="samples">Mike Hughes;Tre Flowers;Keith Smith;Jaylinn Hawkin, Cameron Sutton;Jerry Jacobs;John Cominsky;Aidan Hu, Cameron Sutton;Kindle Vildor;Ifeatu Melifonwu;Aida, Stephon Gilmore;Jourdan Lewis;Daron Bland;Dorance , Elijah Molden;Roger McCreary;Tre Avery;Denico Autr</td>
+            </tr>
+
+            <tr>
+                <td><strong>offense_positions</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">1468</td>
+                <td class="samples">CB;CB;FB;FS;ILB;ILB;OLB;RB;RB;TE;WR, CB;DE;FS;MLB;MLB;OLB;RB;SS;TE;WR;WR, CB;CB;FS;FS;ILB;ILB;ILB;LS;OLB;P;TE, FS;ILB;ILB;LS;OLB;P;SS;SS;TE;WR;WR, C;G;G;G;QB;RB;T;TE;WR;WR;WR</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_positions</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">2967</td>
+                <td class="samples">CB;CB;DE;FS;FS;ILB;ILB;NT;NT;OLB;WR, CB;CB;CB;CB;DT;DT;FS;ILB;OLB;OLB;OLB, CB;CB;DE;DE;DT;FS;RB;RB;TE;WR;WR, CB;CB;CB;CB;ILB;OLB;OLB;RB;TE;WR;WR, CB;CB;CB;DE;DE;DT;MLB;MLB;SS;SS;SS</td>
+            </tr>
+
+            <tr>
+                <td><strong>offense_numbers</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">13588</td>
+                <td class="samples">33;96;40;29;50;51;84;37;85;12;16, 58;66;74;71;1;23;73;81;85;11;0, 56;76;66;67;12;32;71;86;4;18;17, 50;47;69;68;7;26;77;72;84;12;8, 63;77;76;14;8;72;71;82;17;2;1</td>
+            </tr>
+
+            <tr>
+                <td><strong>defense_numbers</strong></td>
+                <td class="dtype">String</td>
+                <td class="nulls">0 (0.0%)</td>
+                <td class="unique">17252</td>
+                <td class="samples">26;20;38;30;59;53;4;48;24;27;89, 31;39;94;90;99;96;22;55;57;43;9, 26;7;2;97;91;98;31;54;57;5;29, 24;31;28;43;55;97;90;26;52;7;41, 21;25;24;51;98;96;30;5;6;48;41</td>
+            </tr>
+
+        </tbody>
+    </table>
+</body>
+</html>

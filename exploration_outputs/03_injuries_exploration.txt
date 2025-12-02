@@ -1,0 +1,80 @@
+================================================================================
+EXPLORATION: Injuries 2023
+Generated: 2025-11-28 16:05:56.627105
+================================================================================
+
+Shape: (5599, 16)
+Rows: 5,599
+Columns: 16
+Memory: 0.67 MB
+
+COLUMNS:
+--------------------------------------------------------------------------------
+  1. season                                   Int32           (0 nulls, 0.0%)
+  2. game_type                                String          (0 nulls, 0.0%)
+  3. team                                     String          (0 nulls, 0.0%)
+  4. week                                     Int32           (0 nulls, 0.0%)
+  5. gsis_id                                  String          (0 nulls, 0.0%)
+  6. position                                 String          (0 nulls, 0.0%)
+  7. full_name                                String          (0 nulls, 0.0%)
+  8. first_name                               String          (0 nulls, 0.0%)
+  9. last_name                                String          (0 nulls, 0.0%)
+ 10. report_primary_injury                    String          (2,878 nulls, 51.4%)
+ 11. report_secondary_injury                  String          (5,427 nulls, 96.9%)
+ 12. report_status                            String          (2,878 nulls, 51.4%)
+ 13. practice_primary_injury                  String          (33 nulls, 0.6%)
+ 14. practice_secondary_injury                String          (5,216 nulls, 93.2%)
+ 15. practice_status                          String          (0 nulls, 0.0%)
+ 16. date_modified                            Datetime(time_unit='us', time_zone='UTC') (0 nulls, 0.0%)
+
+================================================================================
+SAMPLE DATA (First 5 rows):
+================================================================================
+shape: (5, 16)
+┌────────┬───────────┬──────┬──────┬───┬──────────────┬──────────────┬──────────────┬──────────────┐
+│ season ┆ game_type ┆ team ┆ week ┆ … ┆ practice_pri ┆ practice_sec ┆ practice_sta ┆ date_modifie │
+│ ---    ┆ ---       ┆ ---  ┆ ---  ┆   ┆ mary_injury  ┆ ondary_injur ┆ tus          ┆ d            │
+│ i32    ┆ str       ┆ str  ┆ i32  ┆   ┆ ---          ┆ y            ┆ ---          ┆ ---          │
+│        ┆           ┆      ┆      ┆   ┆ str          ┆ ---          ┆ str          ┆ datetime[μs, │
+│        ┆           ┆      ┆      ┆   ┆              ┆ str          ┆              ┆ UTC]         │
+╞════════╪═══════════╪══════╪══════╪═══╪══════════════╪══════════════╪══════════════╪══════════════╡
+│ 2023   ┆ REG       ┆ ARI  ┆ 1    ┆ … ┆ Knee         ┆ null         ┆ Full Partici ┆ 2023-09-08   │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ pation in    ┆ 18:49:43 UTC │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ Practice     ┆              │
+│ 2023   ┆ REG       ┆ ARI  ┆ 1    ┆ … ┆ Hand         ┆ null         ┆ Did Not      ┆ 2023-09-08   │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ Participate  ┆ 18:50:25 UTC │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ In Practic…  ┆              │
+│ 2023   ┆ REG       ┆ ARI  ┆ 1    ┆ … ┆ Hamstring    ┆ null         ┆ Limited Part ┆ 2023-09-08   │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ icipation in ┆ 18:50:02 UTC │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ Pract…       ┆              │
+│ 2023   ┆ REG       ┆ ARI  ┆ 1    ┆ … ┆ Knee         ┆ null         ┆ Limited Part ┆ 2023-09-08   │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ icipation in ┆ 18:50:02 UTC │
+│        ┆           ┆      ┆      ┆   ┆              ┆              ┆ Pract…       ┆              │
+│ 2023   ┆ REG       ┆ ATL  ┆ 1    ┆ … ┆ Not injury   ┆ null         ┆ Did Not      ┆ 2023-09-06   │
+│        ┆           ┆      ┆      ┆   ┆ related -    ┆              ┆ Participate  ┆ 20:54:47 UTC │
+│        ┆           ┆      ┆      ┆   ┆ resting p…   ┆              ┆ In Practic…  ┆              │
+└────────┴───────────┴──────┴──────┴───┴──────────────┴──────────────┴──────────────┴──────────────┘
+
+================================================================================
+NUMERIC COLUMN STATISTICS:
+================================================================================
+shape: (9, 3)
+┌────────────┬────────┬───────────┐
+│ statistic  ┆ season ┆ week      │
+│ ---        ┆ ---    ┆ ---       │
+│ str        ┆ f64    ┆ f64       │
+╞════════════╪════════╪═══════════╡
+│ count      ┆ 5599.0 ┆ 5599.0    │
+│ null_count ┆ 0.0    ┆ 0.0       │
+│ mean       ┆ 2023.0 ┆ 10.592427 │
+│ std        ┆ 0.0    ┆ 5.240073  │
+│ min        ┆ 2023.0 ┆ 1.0       │
+│ 25%        ┆ 2023.0 ┆ 6.0       │
+│ 50%        ┆ 2023.0 ┆ 11.0      │
+│ 75%        ┆ 2023.0 ┆ 15.0      │
+│ max        ┆ 2023.0 ┆ 19.0      │
+└────────────┴────────┴───────────┘
+
+================================================================================
+INJURY STATUS DISTRIBUTION:
+================================================================================

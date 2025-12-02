@@ -1,0 +1,65 @@
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:114: DeprecationWarning: the argument `columns` for `DataFrame.pivot` is deprecated. It was renamed to `on` in version 1.0.0.
+  ]).pivot(index='posteam', columns='down', values='pass_rate')
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:125: DeprecationWarning: the argument `columns` for `DataFrame.pivot` is deprecated. It was renamed to `on` in version 1.0.0.
+  ]).pivot(index='posteam', columns='distance_category', values='pass_rate')
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:135: DeprecationWarning: the argument `columns` for `DataFrame.pivot` is deprecated. It was renamed to `on` in version 1.0.0.
+  ]).pivot(index='posteam', columns='field_position_category', values='pass_rate')
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:143: DeprecationWarning: the argument `columns` for `DataFrame.pivot` is deprecated. It was renamed to `on` in version 1.0.0.
+  ]).pivot(index='posteam', columns='score_situation', values='pass_rate')
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:196: DeprecationWarning: the argument `min_periods` for `Expr.rolling_mean` is deprecated. It was renamed to `min_samples` in version 1.21.0.
+  .rolling_mean(window_size=3, min_periods=1)
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:202: DeprecationWarning: the argument `min_periods` for `Expr.rolling_mean` is deprecated. It was renamed to `min_samples` in version 1.21.0.
+  .rolling_mean(window_size=3, min_periods=1)
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:208: DeprecationWarning: the argument `min_periods` for `Expr.rolling_sum` is deprecated. It was renamed to `min_samples` in version 1.21.0.
+  .rolling_sum(window_size=5, min_periods=1)
+C:\Users\Noah Yohannes\Documents\School\CS513\FinalProject\test-1\dc_feature_engineering.py:271: DeprecationWarning: the argument `min_periods` for `Expr.rolling_sum` is deprecated. It was renamed to `min_samples` in version 1.21.0.
+  .rolling_sum(window_size=10, min_periods=1)
+================================================================================
+DC FEATURE ENGINEERING - PHASE 1
+================================================================================
+
+[1/10] Loading cached data...
+   PBP: (49665, 372)
+   Participation: (46168, 26)
+   Schedules: (285, 46)
+   Snap counts: (26540, 16)
+
+[2/10] Filtering for run/pass plays...
+   Filtered to 35,600 run/pass plays
+
+[3/10] Engineering team tendency features...
+   Computing team pass rates by situation...
+   Merging team tendency features...
+   Created 24 team tendency features
+
+[4/10] Engineering momentum features...
+   Created momentum features
+
+[5/10] Engineering fatigue features...
+   Created fatigue features
+
+[6/10] Engineering personnel features...
+   Created personnel features
+
+[7/10] Engineering contextual features...
+   Created contextual features
+
+[8/10] Adding basic situational features...
+   Created basic situational features
+
+[9/10] Selecting final feature set...
+   Total features: 85
+   After dropping nulls: 18,174 plays
+
+[10/10] Saving engineered features...
+   Saved to: dc_features\dc_features_2023.parquet
+   Saved summary to: dc_features\feature_summary_2023.txt
+
+================================================================================
+FEATURE ENGINEERING COMPLETE!
+================================================================================
+
+Features saved to: dc_features\dc_features_2023.parquet
+Summary saved to: dc_features\feature_summary_2023.txt
+
+Ready for model training!
