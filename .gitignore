@@ -67,3 +67,4 @@ Thumbs.db
 
 # Claude config
 .claude/settings.local.json
+CLAUDE.md
