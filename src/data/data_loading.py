@@ -125,14 +125,14 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 1. PLAY-BY-PLAY DATA (Already explored, but cache it)
     # ----------------------------------------------------------------------------
-    print("\n[1/8] Play-by-Play Data")
+    print("\n[1/9] Play-by-Play Data")
     pbp = load_with_cache('pbp', lambda: nfl.load_pbp(SEASON), SEASON)
     explore_dataframe(pbp, f"Play-by-Play {SEASON}", OUTPUT_DIR / "01_pbp_exploration.txt")
 
     # ----------------------------------------------------------------------------
     # 2. PARTICIPATION DATA (Who was on field for each play)
     # ----------------------------------------------------------------------------
-    print("\n[2/8] Participation Data")
+    print("\n[2/9] Participation Data")
     try:
         participation = load_with_cache('participation', lambda: nfl.load_participation(SEASON), SEASON)
         explore_dataframe(participation, f"Participation {SEASON}", OUTPUT_DIR / "02_participation_exploration.txt")
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 3. INJURIES DATA (Player availability)
     # ----------------------------------------------------------------------------
-    print("\n[3/8] Injuries Data")
+    print("\n[3/9] Injuries Data")
     try:
         injuries = load_with_cache('injuries', lambda: nfl.load_injuries(SEASON), SEASON)
         explore_dataframe(injuries, f"Injuries {SEASON}", OUTPUT_DIR / "03_injuries_exploration.txt")
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 4. SCHEDULES DATA (Game context: weather, venue, etc.)
     # ----------------------------------------------------------------------------
-    print("\n[4/8] Schedules Data")
+    print("\n[4/9] Schedules Data")
     try:
         schedules = load_with_cache('schedules', lambda: nfl.load_schedules(SEASON), SEASON)
         explore_dataframe(schedules, f"Schedules {SEASON}", OUTPUT_DIR / "04_schedules_exploration.txt")
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 5. ROSTERS DATA (Team composition)
     # ----------------------------------------------------------------------------
-    print("\n[5/8] Rosters Data")
+    print("\n[5/9] Rosters Data")
     try:
         rosters = load_with_cache('rosters', lambda: nfl.load_rosters(SEASON), SEASON)
         explore_dataframe(rosters, f"Rosters {SEASON}", OUTPUT_DIR / "05_rosters_exploration.txt")
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 6. SNAP COUNTS DATA (Playing time)
     # ----------------------------------------------------------------------------
-    print("\n[6/8] Snap Counts Data")
+    print("\n[6/9] Snap Counts Data")
     try:
         snap_counts = load_with_cache('snap_counts', lambda: nfl.load_snap_counts(SEASON), SEASON)
         explore_dataframe(snap_counts, f"Snap Counts {SEASON}", OUTPUT_DIR / "06_snap_counts_exploration.txt")
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 7. DEPTH CHARTS DATA (Starting lineups)
     # ----------------------------------------------------------------------------
-    print("\n[7/8] Depth Charts Data")
+    print("\n[7/9] Depth Charts Data")
     try:
         depth_charts = load_with_cache('depth_charts', lambda: nfl.load_depth_charts(SEASON), SEASON)
         explore_dataframe(depth_charts, f"Depth Charts {SEASON}", OUTPUT_DIR / "07_depth_charts_exploration.txt")
@@ -253,12 +253,36 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------
     # 8. NEXTGEN STATS DATA (Advanced metrics)
     # ----------------------------------------------------------------------------
-    print("\n[8/8] NextGen Stats Data (Passing)")
+    print("\n[8/9] NextGen Stats Data (Passing)")
     try:
         nextgen_pass = load_with_cache('nextgen_pass', lambda: nfl.load_nextgen_stats(SEASON, 'passing'), SEASON)
         explore_dataframe(nextgen_pass, f"NextGen Passing Stats {SEASON}", OUTPUT_DIR / "08_nextgen_pass_exploration.txt")
     except Exception as e:
         print(f"   [ERROR] Could not load nextgen passing stats: {e}")
+
+    # ----------------------------------------------------------------------------
+    # 9. PLAYER STATS DATA (Weekly individual performance)
+    # ----------------------------------------------------------------------------
+    print("\n[9/9] Player Stats Data (Weekly)")
+    try:
+        player_stats = load_with_cache('player_stats', lambda: nfl.load_player_stats(SEASON, 'week'), SEASON)
+        explore_dataframe(player_stats, f"Player Stats {SEASON}", OUTPUT_DIR / "09_player_stats_exploration.txt")
+
+        # Extra analysis: top performers
+        with open(OUTPUT_DIR / "09_player_stats_exploration.txt", 'a', encoding='utf-8') as f:
+            f.write("\n" + "=" * 80 + "\n")
+            f.write("PLAYER STATS ANALYSIS:\n")
+            f.write("=" * 80 + "\n")
+            if 'position' in player_stats.columns:
+                pos_counts = player_stats['position'].value_counts()
+                f.write("Position distribution:\n")
+                f.write(str(pos_counts) + "\n\n")
+            if 'passing_yards' in player_stats.columns:
+                top_passers = player_stats.sort('passing_yards', descending=True).head(10)
+                f.write("Top 10 Passers (by yards):\n")
+                f.write(str(top_passers.select(['player_name', 'week', 'passing_yards', 'completions', 'attempts'])) + "\n")
+    except Exception as e:
+        print(f"   [ERROR] Could not load player stats: {e}")
 
     print("\n" + "=" * 80)
     print("EXPLORATION COMPLETE!")
