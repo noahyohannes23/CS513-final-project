@@ -69,7 +69,7 @@ def add_player_performance_features(
         pl.col('attempts').cum_sum().alias('cum_attempts'),
         pl.col('passing_yards').cum_sum().alias('cum_passing_yards'),
         pl.col('passing_tds').cum_sum().alias('cum_passing_tds'),
-        pl.col('interceptions').cum_sum().alias('cum_ints'),
+        pl.col('passing_interceptions').cum_sum().alias('cum_ints'),
     ]).explode(['week', 'cum_completions', 'cum_attempts', 'cum_passing_yards',
                 'cum_passing_tds', 'cum_ints'])
 

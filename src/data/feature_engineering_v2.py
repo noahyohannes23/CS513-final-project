@@ -48,14 +48,14 @@ def load_cached_data(season: int):
     # Load player stats (newly added)
     try:
         player_stats = pl.read_parquet(CACHE_DIR / f"player_stats_{season}.parquet")
-        print(f"   ✓ Player stats loaded: {player_stats.shape}")
+        print(f"   [OK] Player stats loaded: {player_stats.shape}")
     except FileNotFoundError:
-        print(f"   ⚠ Player stats not found - run data_loading.py first")
+        print(f"   [WARNING] Player stats not found - run data_loading.py first")
         player_stats = None
 
-    print(f"   ✓ PBP: {pbp.shape}")
-    print(f"   ✓ Participation: {participation.shape}")
-    print(f"   ✓ Schedules: {schedules.shape}")
+    print(f"   [OK] PBP: {pbp.shape}")
+    print(f"   [OK] Participation: {participation.shape}")
+    print(f"   [OK] Schedules: {schedules.shape}")
 
     return pbp, participation, schedules, player_stats
 
@@ -72,7 +72,7 @@ def prepare_data(pbp: pl.DataFrame) -> pl.DataFrame:
         (pl.col('play_type') == 'pass').cast(pl.Int32).alias('is_pass')
     ])
 
-    print(f"   ✓ Filtered to {pbp_clean.height:,} run/pass plays")
+    print(f"   [OK] Filtered to {pbp_clean.height:,} run/pass plays")
     return pbp_clean
 
 
@@ -86,31 +86,31 @@ def engineer_features(
     print("\n[3/5] Engineering features...")
 
     # Category 1: Team Tendencies (historical pass rates by situation)
-    print("   → Team tendency features...")
+    print("   > Team tendency features...")
     pbp = add_team_tendency_features(pbp)
 
     # Category 2: Momentum (rolling drive/play success)
-    print("   → Momentum features...")
+    print("   > Momentum features...")
     pbp = add_momentum_features(pbp)
 
     # Category 3: Fatigue (tempo, snap counts)
-    print("   → Fatigue features...")
+    print("   > Fatigue features...")
     pbp = add_fatigue_features(pbp)
 
     # Category 4: Personnel (defensive alignment)
-    print("   → Personnel features...")
+    print("   > Personnel features...")
     pbp = add_personnel_features(pbp, participation)
 
     # Category 5: Context (weather, venue)
-    print("   → Context features...")
+    print("   > Context features...")
     pbp = add_context_features(pbp, schedules)
 
     # Category 6: Player Performance (NEW - player efficiency stats)
-    print("   → Player performance features (NEW)...")
+    print("   > Player performance features (NEW)...")
     pbp = add_player_performance_features(pbp, player_stats)
 
     # Category 7: Situational (basic flags)
-    print("   → Situational features...")
+    print("   > Situational features...")
     pbp = add_situational_features(pbp)
 
     return pbp
@@ -152,10 +152,13 @@ def select_final_features(pbp: pl.DataFrame) -> pl.DataFrame:
 
     # Select and clean
     pbp_final = pbp.select(all_features)
-    pbp_final_clean = pbp_final.drop_nulls()
 
-    print(f"   ✓ Total features: {len(all_features)}")
-    print(f"   ✓ After dropping nulls: {pbp_final_clean.height:,} plays")
+    # Only drop nulls on critical features (not player stats which may be legitimately null)
+    critical_features = ['down', 'ydstogo', 'yardline_100', 'score_differential', 'is_pass']
+    pbp_final_clean = pbp_final.drop_nulls(subset=critical_features)
+
+    print(f"   [OK] Total features: {len(all_features)}")
+    print(f"   [OK] After dropping nulls on critical features: {pbp_final_clean.height:,} plays")
 
     return pbp_final_clean, all_features
 
@@ -167,7 +170,7 @@ def save_features(pbp: pl.DataFrame, all_features: list, season: int):
     # Save feature data
     output_path = OUTPUT_DIR / f"dc_features_{season}.parquet"
     pbp.write_parquet(output_path)
-    print(f"   ✓ Features saved: {output_path}")
+    print(f"   [OK] Features saved: {output_path}")
 
     # Save feature summary
     summary_path = OUTPUT_DIR / f"feature_summary_{season}.txt"
@@ -212,7 +215,7 @@ def save_features(pbp: pl.DataFrame, all_features: list, season: int):
                 for feat in sorted(group_features):
                     f.write(f"  • {feat}\n")
 
-    print(f"   ✓ Summary saved: {summary_path}")
+    print(f"   [OK] Summary saved: {summary_path}")
 
 
 def main():
@@ -241,7 +244,7 @@ def main():
     print("=" * 80)
     print(f"\nFeatures saved to: {OUTPUT_DIR / f'dc_features_{SEASON}.parquet'}")
     print(f"Summary saved to: {OUTPUT_DIR / f'feature_summary_{SEASON}.txt'}")
-    print("\n✓ Ready for model training!")
+    print("\n[OK] Ready for model training!")
 
 
 if __name__ == "__main__":
