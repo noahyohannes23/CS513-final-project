@@ -117,182 +117,109 @@ def explore_dataframe(df, name, output_file):
 
 if __name__ == "__main__":
     print("=" * 80)
-    print("NFL DATA EXPLORATION WITH CACHING")
+    print("NFL DATA EXPLORATION WITH CACHING - MULTI-SEASON")
     print("=" * 80)
 
-    SEASON = 2023
+    # Multi-season support for temporal split training
+    SEASONS = [2021, 2022, 2023, 2024, 2025]
 
-    # ----------------------------------------------------------------------------
-    # 1. PLAY-BY-PLAY DATA (Already explored, but cache it)
-    # ----------------------------------------------------------------------------
-    print("\n[1/9] Play-by-Play Data")
-    pbp = load_with_cache('pbp', lambda: nfl.load_pbp(SEASON), SEASON)
-    explore_dataframe(pbp, f"Play-by-Play {SEASON}", OUTPUT_DIR / "01_pbp_exploration.txt")
+    print(f"\nSeasons to load: {SEASONS}")
+    print("=" * 80)
 
-    # ----------------------------------------------------------------------------
-    # 2. PARTICIPATION DATA (Who was on field for each play)
-    # ----------------------------------------------------------------------------
-    print("\n[2/9] Participation Data")
-    try:
-        participation = load_with_cache('participation', lambda: nfl.load_participation(SEASON), SEASON)
-        explore_dataframe(participation, f"Participation {SEASON}", OUTPUT_DIR / "02_participation_exploration.txt")
+    # Loop through all seasons and cache data
+    for season_idx, SEASON in enumerate(SEASONS, 1):
+        print(f"\n{'='*80}")
+        print(f"LOADING SEASON {SEASON} ({season_idx}/{len(SEASONS)})")
+        print(f"{'='*80}")
 
-        # Extra analysis: count players per play
-        with open(OUTPUT_DIR / "02_participation_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("PARTICIPATION ANALYSIS:\n")
-            f.write("=" * 80 + "\n")
-            if 'nfl_id' in participation.columns and 'play_id' in participation.columns:
-                players_per_play = participation.group_by('play_id').agg(pl.col('nfl_id').count().alias('num_players'))
-                f.write(f"Average players per play: {players_per_play['num_players'].mean():.1f}\n")
-                f.write(str(players_per_play.describe()) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load participation: {e}")
+        # ----------------------------------------------------------------------------
+        # 1. PLAY-BY-PLAY DATA (Already explored, but cache it)
+        # ----------------------------------------------------------------------------
+        print("\n[1/9] Play-by-Play Data")
+        pbp = load_with_cache('pbp', lambda: nfl.load_pbp(SEASON), SEASON)
 
-    # ----------------------------------------------------------------------------
-    # 3. INJURIES DATA (Player availability)
-    # ----------------------------------------------------------------------------
-    print("\n[3/9] Injuries Data")
-    try:
-        injuries = load_with_cache('injuries', lambda: nfl.load_injuries(SEASON), SEASON)
-        explore_dataframe(injuries, f"Injuries {SEASON}", OUTPUT_DIR / "03_injuries_exploration.txt")
+        # Only save exploration for first season to avoid clutter
+        if season_idx == 1:
+            explore_dataframe(pbp, f"Play-by-Play {SEASON}", OUTPUT_DIR / "01_pbp_exploration.txt")
 
-        # Extra analysis: injury status distribution
-        with open(OUTPUT_DIR / "03_injuries_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("INJURY STATUS DISTRIBUTION:\n")
-            f.write("=" * 80 + "\n")
-            if 'game_status' in injuries.columns:
-                status_counts = injuries['game_status'].value_counts()
-                f.write(str(status_counts) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load injuries: {e}")
+        # ----------------------------------------------------------------------------
+        # 2. PARTICIPATION DATA (Who was on field for each play)
+        # ----------------------------------------------------------------------------
+        print("\n[2/9] Participation Data")
+        try:
+            participation = load_with_cache('participation', lambda: nfl.load_participation(SEASON), SEASON)
 
-    # ----------------------------------------------------------------------------
-    # 4. SCHEDULES DATA (Game context: weather, venue, etc.)
-    # ----------------------------------------------------------------------------
-    print("\n[4/9] Schedules Data")
-    try:
-        schedules = load_with_cache('schedules', lambda: nfl.load_schedules(SEASON), SEASON)
-        explore_dataframe(schedules, f"Schedules {SEASON}", OUTPUT_DIR / "04_schedules_exploration.txt")
+            if season_idx == 1:
+                explore_dataframe(participation, f"Participation {SEASON}", OUTPUT_DIR / "02_participation_exploration.txt")
 
-        # Extra analysis: game types
-        with open(OUTPUT_DIR / "04_schedules_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("SCHEDULE ANALYSIS:\n")
-            f.write("=" * 80 + "\n")
-            if 'roof' in schedules.columns:
-                roof_counts = schedules['roof'].value_counts()
-                f.write("Roof types:\n")
-                f.write(str(roof_counts) + "\n\n")
-            if 'gameday' in schedules.columns:
-                gameday_counts = schedules['gameday'].value_counts()
-                f.write("Game days:\n")
-                f.write(str(gameday_counts.head(10)) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load schedules: {e}")
+            # Extra analysis: count players per play (only for first season)
+            if season_idx == 1:
+                with open(OUTPUT_DIR / "02_participation_exploration.txt", 'a', encoding='utf-8') as f:
+                    f.write("\n" + "=" * 80 + "\n")
+                    f.write("PARTICIPATION ANALYSIS:\n")
+                    f.write("=" * 80 + "\n")
+                    if 'nfl_id' in participation.columns and 'play_id' in participation.columns:
+                        players_per_play = participation.group_by('play_id').agg(pl.col('nfl_id').count().alias('num_players'))
+                        f.write(f"Average players per play: {players_per_play['num_players'].mean():.1f}\n")
+                        f.write(str(players_per_play.describe()) + "\n")
+        except Exception as e:
+            print(f"   [ERROR] Could not load participation: {e}")
 
-    # ----------------------------------------------------------------------------
-    # 5. ROSTERS DATA (Team composition)
-    # ----------------------------------------------------------------------------
-    print("\n[5/9] Rosters Data")
-    try:
-        rosters = load_with_cache('rosters', lambda: nfl.load_rosters(SEASON), SEASON)
-        explore_dataframe(rosters, f"Rosters {SEASON}", OUTPUT_DIR / "05_rosters_exploration.txt")
+        # ----------------------------------------------------------------------------
+        # 3. SCHEDULES DATA (Game context: weather, venue, etc.)
+        # ----------------------------------------------------------------------------
+        print("\n[3/9] Schedules Data")
+        try:
+            schedules = load_with_cache('schedules', lambda: nfl.load_schedules(SEASON), SEASON)
+            if season_idx == 1:
+                explore_dataframe(schedules, f"Schedules {SEASON}", OUTPUT_DIR / "04_schedules_exploration.txt")
+        except Exception as e:
+            print(f"   [ERROR] Could not load schedules: {e}")
 
-        # Extra analysis: position distribution
-        with open(OUTPUT_DIR / "05_rosters_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("ROSTER ANALYSIS:\n")
-            f.write("=" * 80 + "\n")
-            if 'position' in rosters.columns:
-                pos_counts = rosters['position'].value_counts()
-                f.write("Position distribution:\n")
-                f.write(str(pos_counts) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load rosters: {e}")
+        # ----------------------------------------------------------------------------
+        # 4. PLAYER STATS DATA (Weekly individual performance)
+        # ----------------------------------------------------------------------------
+        print("\n[4/9] Player Stats Data (Weekly)")
+        try:
+            player_stats = load_with_cache('player_stats', lambda: nfl.load_player_stats(SEASON, 'week'), SEASON)
+            if season_idx == 1:
+                explore_dataframe(player_stats, f"Player Stats {SEASON}", OUTPUT_DIR / "09_player_stats_exploration.txt")
+        except Exception as e:
+            print(f"   [ERROR] Could not load player stats: {e}")
 
-    # ----------------------------------------------------------------------------
-    # 6. SNAP COUNTS DATA (Playing time)
-    # ----------------------------------------------------------------------------
-    print("\n[6/9] Snap Counts Data")
-    try:
-        snap_counts = load_with_cache('snap_counts', lambda: nfl.load_snap_counts(SEASON), SEASON)
-        explore_dataframe(snap_counts, f"Snap Counts {SEASON}", OUTPUT_DIR / "06_snap_counts_exploration.txt")
+        # Optional: Load other datasets if needed for future features
+        # For now, we'll skip injuries, rosters, snap_counts, depth_charts, nextgen
+        # to speed up the data loading process. Uncomment if you need them:
 
-        # Extra analysis: snap percentage distribution
-        with open(OUTPUT_DIR / "06_snap_counts_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("SNAP COUNT ANALYSIS:\n")
-            f.write("=" * 80 + "\n")
-            if 'offense_pct' in snap_counts.columns:
-                f.write(str(snap_counts['offense_pct'].describe()) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load snap_counts: {e}")
+        # print("\n[5/9] Injuries Data")
+        # try:
+        #     injuries = load_with_cache('injuries', lambda: nfl.load_injuries(SEASON), SEASON)
+        # except Exception as e:
+        #     print(f"   [ERROR] Could not load injuries: {e}")
 
-    # ----------------------------------------------------------------------------
-    # 7. DEPTH CHARTS DATA (Starting lineups)
-    # ----------------------------------------------------------------------------
-    print("\n[7/9] Depth Charts Data")
-    try:
-        depth_charts = load_with_cache('depth_charts', lambda: nfl.load_depth_charts(SEASON), SEASON)
-        explore_dataframe(depth_charts, f"Depth Charts {SEASON}", OUTPUT_DIR / "07_depth_charts_exploration.txt")
-
-        # Extra analysis: depth distribution
-        with open(OUTPUT_DIR / "07_depth_charts_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("DEPTH CHART ANALYSIS:\n")
-            f.write("=" * 80 + "\n")
-            if 'depth_team' in depth_charts.columns:
-                depth_counts = depth_charts['depth_team'].value_counts()
-                f.write("Depth position distribution:\n")
-                f.write(str(depth_counts.head(10)) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load depth_charts: {e}")
-
-    # ----------------------------------------------------------------------------
-    # 8. NEXTGEN STATS DATA (Advanced metrics)
-    # ----------------------------------------------------------------------------
-    print("\n[8/9] NextGen Stats Data (Passing)")
-    try:
-        nextgen_pass = load_with_cache('nextgen_pass', lambda: nfl.load_nextgen_stats(SEASON, 'passing'), SEASON)
-        explore_dataframe(nextgen_pass, f"NextGen Passing Stats {SEASON}", OUTPUT_DIR / "08_nextgen_pass_exploration.txt")
-    except Exception as e:
-        print(f"   [ERROR] Could not load nextgen passing stats: {e}")
-
-    # ----------------------------------------------------------------------------
-    # 9. PLAYER STATS DATA (Weekly individual performance)
-    # ----------------------------------------------------------------------------
-    print("\n[9/9] Player Stats Data (Weekly)")
-    try:
-        player_stats = load_with_cache('player_stats', lambda: nfl.load_player_stats(SEASON, 'week'), SEASON)
-        explore_dataframe(player_stats, f"Player Stats {SEASON}", OUTPUT_DIR / "09_player_stats_exploration.txt")
-
-        # Extra analysis: top performers
-        with open(OUTPUT_DIR / "09_player_stats_exploration.txt", 'a', encoding='utf-8') as f:
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("PLAYER STATS ANALYSIS:\n")
-            f.write("=" * 80 + "\n")
-            if 'position' in player_stats.columns:
-                pos_counts = player_stats['position'].value_counts()
-                f.write("Position distribution:\n")
-                f.write(str(pos_counts) + "\n\n")
-            if 'passing_yards' in player_stats.columns:
-                top_passers = player_stats.sort('passing_yards', descending=True).head(10)
-                f.write("Top 10 Passers (by yards):\n")
-                f.write(str(top_passers.select(['player_name', 'week', 'passing_yards', 'completions', 'attempts'])) + "\n")
-    except Exception as e:
-        print(f"   [ERROR] Could not load player stats: {e}")
+        print(f"\n[OK] Season {SEASON} data cached successfully")
 
     print("\n" + "=" * 80)
-    print("EXPLORATION COMPLETE!")
+    print("MULTI-SEASON DATA LOADING COMPLETE!")
     print("=" * 80)
-    print(f"\nCached data saved to: {CACHE_DIR}")
+    print(f"\nSeasons loaded: {SEASONS}")
+    print(f"Cached data saved to: {CACHE_DIR}")
     print(f"Exploration reports saved to: {OUTPUT_DIR}")
-    print("\nCache files:")
-    for cache_file in sorted(CACHE_DIR.glob("*.parquet")):
-        size_mb = cache_file.stat().st_size / (1024 * 1024)
-        print(f"  - {cache_file.name:40s} ({size_mb:.2f} MB)")
-    print("\nExploration reports:")
-    for report_file in sorted(OUTPUT_DIR.glob("*.txt")):
-        print(f"  - {report_file.name}")
+    print("\nCache files by season:")
+    for season in SEASONS:
+        season_files = sorted(CACHE_DIR.glob(f"*_{season}.parquet"))
+        if season_files:
+            print(f"\n  Season {season}:")
+            for cache_file in season_files:
+                size_mb = cache_file.stat().st_size / (1024 * 1024)
+                print(f"    - {cache_file.name:40s} ({size_mb:.2f} MB)")
+
+    # Summary statistics
+    print(f"\n{'='*80}")
+    print("SUMMARY:")
+    total_files = len(list(CACHE_DIR.glob("*.parquet")))
+    total_size = sum(f.stat().st_size for f in CACHE_DIR.glob("*.parquet")) / (1024 * 1024)
+    print(f"  Total cache files: {total_files}")
+    print(f"  Total cache size: {total_size:.2f} MB")
+    print(f"  Ready for multi-season feature engineering!")
+    print("=" * 80)

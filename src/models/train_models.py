@@ -30,22 +30,31 @@ RESULTS_DIR = Path("./outputs/results")
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-SEASON = 2023
+# Multi-season temporal split configuration
+SEASONS = [2021, 2022, 2023, 2024, 2025]
+SEASON_RANGE = f"{min(SEASONS)}-{max(SEASONS)}"
+
+# Temporal split: Train on 2021-2024 + 2025 weeks 1-10, Test on 2025 weeks 11-13
+TRAIN_CUTOFF_SEASON = 2025
+TRAIN_CUTOFF_WEEK = 10  # Weeks 1-10 for training
+TEST_START_WEEK = 11     # Weeks 11-13 for testing
+
 RANDOM_STATE = 42
-TEST_SIZE = 0.2
 
 # ============================================================================
 # LOAD DATA
 # ============================================================================
 
-def load_features(season: int):
-    """Load engineered features."""
-    print(f"[1/6] Loading features for {season}...")
+def load_features(season_range: str):
+    """Load engineered features for multiple seasons."""
+    print(f"[1/6] Loading multi-season features ({season_range})...")
 
-    features_path = FEATURES_DIR / f"dc_features_{season}.parquet"
+    features_path = FEATURES_DIR / f"dc_features_{season_range}.parquet"
     df = pl.read_parquet(features_path)
 
     print(f"   Loaded: {df.shape[0]:,} plays, {df.shape[1]} features")
+    print(f"   Seasons included: {sorted(df['season'].unique().to_list())}")
+
     return df
 
 
@@ -60,8 +69,8 @@ def prepare_data(df: pl.DataFrame):
     # Separate features and target
     target = 'is_pass'
 
-    # Exclude non-feature columns
-    exclude_cols = ['game_id', 'play_id', 'posteam', 'defteam', 'week', target]
+    # Exclude non-feature columns (including 'season' which is metadata)
+    exclude_cols = ['game_id', 'play_id', 'posteam', 'defteam', 'week', 'season', target]
 
     # CRITICAL: Exclude data leakage columns (only known AFTER play happens)
     leakage_keywords = [
@@ -120,23 +129,45 @@ def prepare_data(df: pl.DataFrame):
 
 
 # ============================================================================
-# TRAIN-TEST SPLIT
+# TEMPORAL TRAIN-TEST SPLIT
 # ============================================================================
 
-def split_data(X, y):
-    """Split data into train and test sets."""
-    print("\n[3/6] Splitting data...")
+def split_data_temporal(df: pl.DataFrame):
+    """
+    Split data temporally for realistic evaluation.
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
+    Train: 2021-2024 (full seasons) + 2025 weeks 1-10
+    Test:  2025 weeks 11-13
+    """
+    print("\n[3/6] Splitting data (TEMPORAL SPLIT)...")
+
+    # Create train/test masks
+    train_mask = (
+        (pl.col('season') < TRAIN_CUTOFF_SEASON) |  # All of 2021-2024
+        ((pl.col('season') == TRAIN_CUTOFF_SEASON) & (pl.col('week') <= TRAIN_CUTOFF_WEEK))  # 2025 weeks 1-10
+    )
+    test_mask = (
+        (pl.col('season') == TRAIN_CUTOFF_SEASON) & (pl.col('week') >= TEST_START_WEEK)  # 2025 weeks 11-13
     )
 
-    print(f"   Train: {X_train.shape[0]:,} plays")
-    print(f"   Test:  {X_test.shape[0]:,} plays")
-    print(f"   Train pass rate: {y_train.mean():.1%}")
-    print(f"   Test pass rate:  {y_test.mean():.1%}")
+    train_df = df.filter(train_mask)
+    test_df = df.filter(test_mask)
 
-    return X_train, X_test, y_train, y_test
+    print(f"\n   TEMPORAL SPLIT SUMMARY:")
+    print(f"   Training set:")
+    print(f"     - Seasons 2021-2024: Full seasons")
+    print(f"     - Season 2025: Weeks 1-{TRAIN_CUTOFF_WEEK}")
+    print(f"     - Total plays: {train_df.height:,}")
+
+    print(f"\n   Test set:")
+    print(f"     - Season 2025: Weeks {TEST_START_WEEK}-13")
+    print(f"     - Total plays: {test_df.height:,}")
+
+    # Calculate test percentage
+    test_pct = (test_df.height / df.height) * 100
+    print(f"\n   Test set size: {test_pct:.1f}% of total data")
+
+    return train_df, test_df
 
 
 # ============================================================================
@@ -271,25 +302,27 @@ def evaluate_models(models, X_train, X_test, y_train, y_test, feature_cols):
 # SAVE RESULTS
 # ============================================================================
 
-def save_results(models, results, feature_cols, season):
+def save_results(models, results, feature_cols, season_range):
     """Save models and results."""
     print("\n[6/6] Saving models and results...")
 
     # Save models
     for name, model in models.items():
         model_filename = name.lower().replace(' ', '_')
-        model_path = MODELS_DIR / f"{model_filename}_{season}.pkl"
+        model_path = MODELS_DIR / f"{model_filename}_{season_range}.pkl"
         with open(model_path, 'wb') as f:
             pickle.dump(model, f)
         print(f"   [OK] Saved {name}: {model_path}")
 
     # Save results summary
-    results_path = RESULTS_DIR / f"model_comparison_{season}.txt"
+    results_path = RESULTS_DIR / f"model_comparison_{season_range}.txt"
     with open(results_path, 'w') as f:
         f.write("=" * 80 + "\n")
-        f.write("MODEL COMPARISON RESULTS\n")
+        f.write("MODEL COMPARISON RESULTS - TEMPORAL SPLIT\n")
         f.write(f"Generated: {datetime.now()}\n")
-        f.write(f"Season: {season}\n")
+        f.write(f"Seasons: {season_range}\n")
+        f.write(f"Train: 2021-2024 full + 2025 weeks 1-{TRAIN_CUTOFF_WEEK}\n")
+        f.write(f"Test: 2025 weeks {TEST_START_WEEK}-13\n")
         f.write("=" * 80 + "\n\n")
 
         # Summary table
@@ -346,19 +379,29 @@ def save_results(models, results, feature_cols, season):
 # ============================================================================
 
 def main():
-    """Main training pipeline."""
+    """Main training pipeline with temporal split."""
     print("=" * 80)
-    print("MODEL TRAINING - LINEAR REGRESSION, RANDOM FOREST, XGBOOST")
+    print("MODEL TRAINING - TEMPORAL SPLIT (2021-2025)")
+    print("LINEAR REGRESSION, RANDOM FOREST, XGBOOST")
     print("=" * 80)
 
-    # Load features
-    df = load_features(SEASON)
+    # Load multi-season features
+    df = load_features(SEASON_RANGE)
 
-    # Prepare data
-    X, y, feature_cols = prepare_data(df)
+    # Temporal split (returns dataframes)
+    train_df, test_df = split_data_temporal(df)
 
-    # Split data
-    X_train, X_test, y_train, y_test = split_data(X, y)
+    # Prepare training data
+    print("\n   Preparing training data...")
+    X_train, y_train, feature_cols = prepare_data(train_df)
+    print(f"   Train features: {X_train.shape}")
+    print(f"   Train pass rate: {y_train.mean():.1%}")
+
+    # Prepare test data
+    print("\n   Preparing test data...")
+    X_test, y_test, _ = prepare_data(test_df)
+    print(f"   Test features: {X_test.shape}")
+    print(f"   Test pass rate: {y_test.mean():.1%}")
 
     # Train models
     models = train_models(X_train, y_train)
@@ -367,22 +410,22 @@ def main():
     results = evaluate_models(models, X_train, X_test, y_train, y_test, feature_cols)
 
     # Save results
-    save_results(models, results, feature_cols, SEASON)
+    save_results(models, results, feature_cols, SEASON_RANGE)
 
     print("\n" + "=" * 80)
-    print("MODEL TRAINING COMPLETE!")
+    print("TEMPORAL SPLIT MODEL TRAINING COMPLETE!")
     print("=" * 80)
 
     # Print summary
     print("\n" + "FINAL RESULTS SUMMARY:")
     print("-" * 80)
-    print(f"{'Model':<20} {'Test Accuracy':<15} {'Improvement over Baseline'}")
+    print(f"{'Model':<20} {'Test Accuracy':<15} {'Notes'}")
     print("-" * 80)
-    baseline = 0.60  # From your previous XGBoost baseline
     for name, res in results.items():
-        improvement = (res['test_accuracy'] - baseline) * 100
-        print(f"{name:<20} {res['test_accuracy']:>13.1%}  {improvement:>+6.1f} percentage points")
+        print(f"{name:<20} {res['test_accuracy']:>13.1%}  Temporal split (2025 wks 11-13)")
 
+    print(f"\nTrain set: 2021-2024 full + 2025 weeks 1-{TRAIN_CUTOFF_WEEK}")
+    print(f"Test set: 2025 weeks {TEST_START_WEEK}-13")
     print(f"\nModels saved to: {MODELS_DIR}")
     print(f"Results saved to: {RESULTS_DIR}")
 

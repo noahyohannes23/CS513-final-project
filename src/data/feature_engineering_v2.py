@@ -31,31 +31,73 @@ CACHE_DIR = Path("./data/cache")
 OUTPUT_DIR = Path("./data/features")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-SEASON = 2023
+# Multi-season training for temporal split
+SEASONS = [2021, 2022, 2023, 2024, 2025]
 
 # ============================================================================
 # MAIN PIPELINE
 # ============================================================================
 
-def load_cached_data(season: int):
-    """Load all cached data required for feature engineering."""
-    print(f"\n[1/5] Loading cached data for {season}...")
+def load_cached_data(seasons: list):
+    """Load all cached data for multiple seasons and concatenate."""
+    print(f"\n[1/5] Loading cached data for seasons {seasons}...")
 
-    pbp = pl.read_parquet(CACHE_DIR / f"pbp_{season}.parquet")
-    participation = pl.read_parquet(CACHE_DIR / f"participation_{season}.parquet")
-    schedules = pl.read_parquet(CACHE_DIR / f"schedules_{season}.parquet")
+    pbp_list = []
+    participation_list = []
+    schedules_list = []
+    player_stats_list = []
 
-    # Load player stats (newly added)
-    try:
-        player_stats = pl.read_parquet(CACHE_DIR / f"player_stats_{season}.parquet")
-        print(f"   [OK] Player stats loaded: {player_stats.shape}")
-    except FileNotFoundError:
-        print(f"   [WARNING] Player stats not found - run data_loading.py first")
-        player_stats = None
+    for season in seasons:
+        print(f"\n   Loading {season}...")
 
-    print(f"   [OK] PBP: {pbp.shape}")
-    print(f"   [OK] Participation: {participation.shape}")
-    print(f"   [OK] Schedules: {schedules.shape}")
+        # Load PBP
+        pbp_season = pl.read_parquet(CACHE_DIR / f"pbp_{season}.parquet")
+        # Add season column for tracking
+        pbp_season = pbp_season.with_columns(pl.lit(season).alias('season'))
+        pbp_list.append(pbp_season)
+        print(f"      PBP: {pbp_season.shape}")
+
+        # Load participation
+        try:
+            participation_season = pl.read_parquet(CACHE_DIR / f"participation_{season}.parquet")
+            participation_season = participation_season.with_columns(pl.lit(season).alias('season'))
+            participation_list.append(participation_season)
+            print(f"      Participation: {participation_season.shape}")
+        except FileNotFoundError:
+            print(f"      [WARNING] Participation not found for {season}")
+
+        # Load schedules
+        try:
+            schedules_season = pl.read_parquet(CACHE_DIR / f"schedules_{season}.parquet")
+            schedules_season = schedules_season.with_columns(pl.lit(season).alias('season'))
+            schedules_list.append(schedules_season)
+            print(f"      Schedules: {schedules_season.shape}")
+        except FileNotFoundError:
+            print(f"      [WARNING] Schedules not found for {season}")
+
+        # Load player stats
+        try:
+            player_stats_season = pl.read_parquet(CACHE_DIR / f"player_stats_{season}.parquet")
+            player_stats_season = player_stats_season.with_columns(pl.lit(season).alias('season'))
+            player_stats_list.append(player_stats_season)
+            print(f"      Player stats: {player_stats_season.shape}")
+        except FileNotFoundError:
+            print(f"      [WARNING] Player stats not found for {season}")
+
+    # Concatenate all seasons
+    print(f"\n   Concatenating {len(seasons)} seasons...")
+    pbp = pl.concat(pbp_list, how="diagonal_relaxed")
+    participation = pl.concat(participation_list, how="diagonal_relaxed") if participation_list else None
+    schedules = pl.concat(schedules_list, how="diagonal_relaxed") if schedules_list else None
+    player_stats = pl.concat(player_stats_list, how="diagonal_relaxed") if player_stats_list else None
+
+    print(f"\n   [OK] Combined PBP: {pbp.shape}")
+    if participation is not None:
+        print(f"   [OK] Combined Participation: {participation.shape}")
+    if schedules is not None:
+        print(f"   [OK] Combined Schedules: {schedules.shape}")
+    if player_stats is not None:
+        print(f"   [OK] Combined Player stats: {player_stats.shape}")
 
     return pbp, participation, schedules, player_stats
 
@@ -84,34 +126,42 @@ def engineer_features(
 ) -> pl.DataFrame:
     """Apply all feature engineering transformations."""
     print("\n[3/5] Engineering features...")
+    print(f"   Starting rows: {pbp.height:,}")
 
     # Category 1: Team Tendencies (historical pass rates by situation)
     print("   > Team tendency features...")
     pbp = add_team_tendency_features(pbp)
+    print(f"      After team tendencies: {pbp.height:,} rows")
 
     # Category 2: Momentum (rolling drive/play success)
     print("   > Momentum features...")
     pbp = add_momentum_features(pbp)
+    print(f"      After momentum: {pbp.height:,} rows")
 
     # Category 3: Fatigue (tempo, snap counts)
     print("   > Fatigue features...")
     pbp = add_fatigue_features(pbp)
+    print(f"      After fatigue: {pbp.height:,} rows")
 
     # Category 4: Personnel (defensive alignment)
     print("   > Personnel features...")
     pbp = add_personnel_features(pbp, participation)
+    print(f"      After personnel: {pbp.height:,} rows")
 
     # Category 5: Context (weather, venue)
     print("   > Context features...")
     pbp = add_context_features(pbp, schedules)
+    print(f"      After context: {pbp.height:,} rows")
 
     # Category 6: Player Performance (NEW - player efficiency stats)
     print("   > Player performance features (NEW)...")
     pbp = add_player_performance_features(pbp, player_stats)
+    print(f"      After player performance: {pbp.height:,} rows")
 
     # Category 7: Situational (basic flags)
     print("   > Situational features...")
     pbp = add_situational_features(pbp)
+    print(f"      After situational: {pbp.height:,} rows")
 
     return pbp
 
@@ -123,7 +173,7 @@ def select_final_features(pbp: pl.DataFrame) -> pl.DataFrame:
     # Core features
     core_features = [
         # Identifiers
-        'game_id', 'play_id', 'posteam', 'defteam', 'week',
+        'game_id', 'play_id', 'posteam', 'defteam', 'week', 'season',
         # Target
         'is_pass',
         # Basic situational
@@ -163,17 +213,18 @@ def select_final_features(pbp: pl.DataFrame) -> pl.DataFrame:
     return pbp_final_clean, all_features
 
 
-def save_features(pbp: pl.DataFrame, all_features: list, season: int):
+def save_features(pbp: pl.DataFrame, all_features: list, seasons: list):
     """Save engineered features and summary."""
     print("\n[5/5] Saving features...")
 
-    # Save feature data
-    output_path = OUTPUT_DIR / f"dc_features_{season}.parquet"
+    # Create filename indicating multi-season
+    season_range = f"{min(seasons)}-{max(seasons)}"
+    output_path = OUTPUT_DIR / f"dc_features_{season_range}.parquet"
     pbp.write_parquet(output_path)
     print(f"   [OK] Features saved: {output_path}")
 
     # Save feature summary
-    summary_path = OUTPUT_DIR / f"feature_summary_{season}.txt"
+    summary_path = OUTPUT_DIR / f"feature_summary_{season_range}.txt"
     with open(summary_path, 'w') as f:
         f.write("=" * 80 + "\n")
         f.write("DC FEATURE ENGINEERING SUMMARY (MODULAR VERSION)\n")
@@ -221,11 +272,12 @@ def save_features(pbp: pl.DataFrame, all_features: list, season: int):
 def main():
     """Main feature engineering pipeline."""
     print("=" * 80)
-    print("DC FEATURE ENGINEERING - MODULAR VERSION")
+    print("DC FEATURE ENGINEERING - MULTI-SEASON MODULAR VERSION")
     print("=" * 80)
+    print(f"Seasons: {SEASONS}")
 
     # Load data
-    pbp, participation, schedules, player_stats = load_cached_data(SEASON)
+    pbp, participation, schedules, player_stats = load_cached_data(SEASONS)
 
     # Prepare data
     pbp = prepare_data(pbp)
@@ -237,14 +289,16 @@ def main():
     pbp_final, all_features = select_final_features(pbp)
 
     # Save
-    save_features(pbp_final, all_features, SEASON)
+    save_features(pbp_final, all_features, SEASONS)
 
+    season_range = f"{min(SEASONS)}-{max(SEASONS)}"
     print("\n" + "=" * 80)
-    print("FEATURE ENGINEERING COMPLETE!")
+    print("MULTI-SEASON FEATURE ENGINEERING COMPLETE!")
     print("=" * 80)
-    print(f"\nFeatures saved to: {OUTPUT_DIR / f'dc_features_{SEASON}.parquet'}")
-    print(f"Summary saved to: {OUTPUT_DIR / f'feature_summary_{SEASON}.txt'}")
-    print("\n[OK] Ready for model training!")
+    print(f"\nSeasons processed: {SEASONS}")
+    print(f"Features saved to: {OUTPUT_DIR / f'dc_features_{season_range}.parquet'}")
+    print(f"Summary saved to: {OUTPUT_DIR / f'feature_summary_{season_range}.txt'}")
+    print("\n[OK] Ready for temporal split model training!")
 
 
 if __name__ == "__main__":

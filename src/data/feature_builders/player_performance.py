@@ -63,7 +63,7 @@ def add_player_performance_features(
     # QB Stats
     qb_stats = player_stats.filter(
         pl.col('position') == 'QB'
-    ).sort(['player_id', 'week']).group_by('player_id').agg([
+    ).sort(['player_id', 'season', 'week']).group_by(['player_id', 'season']).agg([
         pl.col('week'),
         pl.col('completions').cum_sum().alias('cum_completions'),
         pl.col('attempts').cum_sum().alias('cum_attempts'),
@@ -93,7 +93,7 @@ def add_player_performance_features(
     # RB Stats
     rb_stats = player_stats.filter(
         pl.col('position') == 'RB'
-    ).sort(['player_id', 'week']).group_by('player_id').agg([
+    ).sort(['player_id', 'season', 'week']).group_by(['player_id', 'season']).agg([
         pl.col('week'),
         pl.col('carries').cum_sum().alias('cum_carries'),
         pl.col('rushing_yards').cum_sum().alias('cum_rushing_yards'),
@@ -115,7 +115,7 @@ def add_player_performance_features(
     # WR/TE Stats
     receiver_stats = player_stats.filter(
         pl.col('position').is_in(['WR', 'TE'])
-    ).sort(['player_id', 'week']).group_by('player_id').agg([
+    ).sort(['player_id', 'season', 'week']).group_by(['player_id', 'season']).agg([
         pl.col('week'),
         pl.col('receptions').cum_sum().alias('cum_receptions'),
         pl.col('targets').cum_sum().alias('cum_targets'),
@@ -146,32 +146,32 @@ def add_player_performance_features(
     # Join QB stats (for QB on current play)
     pbp = pbp.join(
         qb_stats.select([
-            'player_id', 'week', 'qb_completion_pct',
+            'player_id', 'season', 'week', 'qb_completion_pct',
             'qb_yards_per_attempt', 'qb_td_int_ratio'
         ]),
-        left_on=['passer_player_id', 'week'],
-        right_on=['player_id', 'week'],
+        left_on=['passer_player_id', 'season', 'week'],
+        right_on=['player_id', 'season', 'week'],
         how='left'
     )
 
     # Join RB stats (for rusher on current play)
     pbp = pbp.join(
         rb_stats.select([
-            'player_id', 'week', 'rb_yards_per_carry', 'rb_tds_per_game'
+            'player_id', 'season', 'week', 'rb_yards_per_carry', 'rb_tds_per_game'
         ]),
-        left_on=['rusher_player_id', 'week'],
-        right_on=['player_id', 'week'],
+        left_on=['rusher_player_id', 'season', 'week'],
+        right_on=['player_id', 'season', 'week'],
         how='left'
     )
 
     # Join receiver stats (for receiver on current play)
     pbp = pbp.join(
         receiver_stats.select([
-            'player_id', 'week', 'receiver_catch_rate',
+            'player_id', 'season', 'week', 'receiver_catch_rate',
             'receiver_yards_per_reception', 'receiver_targets_per_game'
         ]),
-        left_on=['receiver_player_id', 'week'],
-        right_on=['player_id', 'week'],
+        left_on=['receiver_player_id', 'season', 'week'],
+        right_on=['player_id', 'season', 'week'],
         how='left'
     )
 

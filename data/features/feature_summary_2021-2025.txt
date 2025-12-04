@@ -1,0 +1,161 @@
+================================================================================
+DC FEATURE ENGINEERING SUMMARY (MODULAR VERSION)
+Generated: 2025-12-03 19:11:14.317166
+================================================================================
+
+Total plays: 164,741
+Total features: 110
+
+FEATURE GROUPS:
+--------------------------------------------------------------------------------
+Core: 14
+Team Tendencies: 22
+Momentum: 23
+Fatigue: 4
+Personnel: 4
+Formation: 1
+Context: 9
+Situational: 11
+Player Performance (NEW): 22
+
+================================================================================
+ALL FEATURES BY CATEGORY:
+================================================================================
+
+
+Core:
+----------------------------------------
+  • defteam
+  • down
+  • game_id
+  • game_seconds_remaining
+  • half_seconds_remaining
+  • is_pass
+  • play_id
+  • posteam
+  • qtr
+  • score_differential
+  • season
+  • week
+  • yardline_100
+  • ydstogo
+
+Team Tendencies:
+----------------------------------------
+  • team_pass_rate_down_1
+  • team_pass_rate_down_2
+  • team_pass_rate_down_3
+  • team_pass_rate_down_4
+  • team_pass_rate_down_null
+  • team_pass_rate_goal_line
+  • team_pass_rate_leading_big
+  • team_pass_rate_leading_small
+  • team_pass_rate_long_distance
+  • team_pass_rate_medium_distance
+  • team_pass_rate_midfield_approach
+  • team_pass_rate_opponent_territory
+  • team_pass_rate_overall
+  • team_pass_rate_own_territory
+  • team_pass_rate_q4
+  • team_pass_rate_red_zone
+  • team_pass_rate_red_zone_special
+  • team_pass_rate_short_distance
+  • team_pass_rate_tied
+  • team_pass_rate_trailing_big
+  • team_pass_rate_trailing_small
+  • team_pass_rate_two_minute
+
+Momentum:
+----------------------------------------
+  • drive_end_transition
+  • drive_end_yard_line
+  • drive_ended_with_score
+  • drive_epa
+  • drive_first_downs
+  • drive_game_clock_end
+  • drive_game_clock_start
+  • drive_inside20
+  • drive_play_count
+  • drive_play_id_ended
+  • drive_play_id_started
+  • drive_quarter_end
+  • drive_quarter_start
+  • drive_real_start_time
+  • drive_start_transition
+  • drive_start_yard_line
+  • drive_time_of_possession
+  • drive_total_yards
+  • drive_yards_penalized
+  • drive_yards_per_play
+  • momentum_epa_last_3
+  • momentum_explosive_last_5
+  • momentum_success_last_3
+
+Fatigue:
+----------------------------------------
+  • fatigue_fast_tempo
+  • fatigue_no_huddle
+  • fatigue_plays_last_10
+  • fatigue_total_offensive_snaps
+
+Personnel:
+----------------------------------------
+  • personnel_defenders_in_box
+  • personnel_heavy_box
+  • personnel_light_box
+  • personnel_pass_rushers
+
+Formation:
+----------------------------------------
+  • formation_shotgun
+
+Context:
+----------------------------------------
+  • context_cold_weather
+  • context_division_game
+  • context_dome
+  • context_grass
+  • context_high_wind
+  • context_outdoor
+  • context_team_rest_days
+  • context_temperature
+  • context_wind
+
+Situational:
+----------------------------------------
+  • situation_fourth_quarter
+  • situation_goal_line
+  • situation_long_distance
+  • situation_losing
+  • situation_passing_down
+  • situation_red_zone
+  • situation_short_yardage
+  • situation_third_down
+  • situation_tied
+  • situation_two_minute
+  • situation_winning
+
+Player Performance (NEW):
+----------------------------------------
+  • qb_completion_pct
+  • qb_dropback
+  • qb_epa
+  • qb_hit
+  • qb_hit_1_player_id
+  • qb_hit_1_player_name
+  • qb_hit_2_player_id
+  • qb_hit_2_player_name
+  • qb_kneel
+  • qb_scramble
+  • qb_spike
+  • qb_td_int_ratio
+  • qb_yards_per_attempt
+  • rb_tds_per_game
+  • rb_yards_per_carry
+  • receiver_catch_rate
+  • receiver_id
+  • receiver_jersey_number
+  • receiver_player_id
+  • receiver_player_name
+  • receiver_targets_per_game
+  • receiver_yards_per_reception
