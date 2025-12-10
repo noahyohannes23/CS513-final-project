@@ -1,10 +1,10 @@
 ================================================================================
 DC FEATURE ENGINEERING SUMMARY (MODULAR VERSION)
-Generated: 2025-12-03 19:11:14.317166
+Generated: 2025-12-10 10:30:17.407920
 ================================================================================
 
 Total plays: 164,741
-Total features: 110
+Total features: 96
 
 FEATURE GROUPS:
 --------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ Personnel: 4
 Formation: 1
 Context: 9
 Situational: 11
-Player Performance (NEW): 22
+Team Performance: 8
 
 ================================================================================
 ALL FEATURES BY CATEGORY:
@@ -135,27 +135,13 @@ Situational:
   • situation_two_minute
   • situation_winning
 
-Player Performance (NEW):
+Team Performance:
 ----------------------------------------
-  • qb_completion_pct
-  • qb_dropback
-  • qb_epa
-  • qb_hit
-  • qb_hit_1_player_id
-  • qb_hit_1_player_name
-  • qb_hit_2_player_id
-  • qb_hit_2_player_name
-  • qb_kneel
-  • qb_scramble
-  • qb_spike
-  • qb_td_int_ratio
-  • qb_yards_per_attempt
-  • rb_tds_per_game
-  • rb_yards_per_carry
-  • receiver_catch_rate
-  • receiver_id
-  • receiver_jersey_number
-  • receiver_player_id
-  • receiver_player_name
-  • receiver_targets_per_game
-  • receiver_yards_per_reception
+  • team_qb_completion_pct
+  • team_qb_td_int_ratio
+  • team_qb_yards_per_attempt
+  • team_rb_tds_per_game
+  • team_rb_yards_per_carry
+  • team_receiver_catch_rate
+  • team_receiver_targets_per_game
+  • team_receiver_yards_per_reception

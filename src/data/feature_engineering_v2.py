@@ -190,8 +190,8 @@ def select_final_features(pbp: pl.DataFrame) -> pl.DataFrame:
     context_features = [col for col in pbp.columns if col.startswith('context_')]
     situation_features = [col for col in pbp.columns if col.startswith('situation_')]
 
-    # NEW: Player performance features
-    player_features = [col for col in pbp.columns if col.startswith(('qb_', 'rb_', 'receiver_'))]
+    # NEW: Player performance features (TEAM-LEVEL aggregates, NOT individual)
+    player_features = [col for col in pbp.columns if col.startswith(('team_qb_', 'team_rb_', 'team_receiver_'))]
 
     # Combine all
     all_features = (
@@ -240,16 +240,17 @@ def save_features(pbp: pl.DataFrame, all_features: list, seasons: list):
         # Count by prefix
         groups = {
             'Core': [c for c in all_features if not any(c.startswith(p) for p in
-                    ['team_', 'momentum_', 'drive_', 'fatigue_', 'personnel_',
-                     'formation_', 'context_', 'situation_', 'qb_', 'rb_', 'receiver_'])],
-            'Team Tendencies': [c for c in all_features if c.startswith('team_')],
+                    ['team_pass_rate', 'team_qb_', 'team_rb_', 'team_receiver_',
+                     'momentum_', 'drive_', 'fatigue_', 'personnel_',
+                     'formation_', 'context_', 'situation_'])],
+            'Team Tendencies': [c for c in all_features if c.startswith('team_pass_rate')],
             'Momentum': [c for c in all_features if c.startswith(('momentum_', 'drive_'))],
             'Fatigue': [c for c in all_features if c.startswith('fatigue_')],
             'Personnel': [c for c in all_features if c.startswith('personnel_')],
             'Formation': [c for c in all_features if c.startswith('formation_')],
             'Context': [c for c in all_features if c.startswith('context_')],
             'Situational': [c for c in all_features if c.startswith('situation_')],
-            'Player Performance (NEW)': [c for c in all_features if c.startswith(('qb_', 'rb_', 'receiver_'))],
+            'Team Performance': [c for c in all_features if c.startswith(('team_qb_', 'team_rb_', 'team_receiver_'))],
         }
 
         for group_name, group_features in groups.items():

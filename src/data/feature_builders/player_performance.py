@@ -1,12 +1,12 @@
 """
-Player Performance Features
-Individual player efficiency and "hot hand" indicators
+Player Performance Features - TEAM-LEVEL AGGREGATES (LEAKAGE-FREE)
+Team-level efficiency and performance indicators
 
-NEW FEATURE CATEGORY: Uses player stats to capture efficiency trends.
-Key insight: Offenses feed hot players and exploit favorable matchups.
+CRITICAL FIX: Uses TEAM-level aggregates instead of individual player joins
+to avoid NULL pattern leakage (rusher_player_id null = pass, non-null = run).
 
-Example: If a RB is averaging 6 yards/carry this game, expect more rushes.
-If a QB is having a bad day, expect more conservative play calls.
+Key insight: Teams with efficient QBs pass more, teams with efficient RBs run more.
+Use cumulative team stats from PREVIOUS weeks only (no look-ahead bias).
 """
 
 import polars as pl
@@ -17,172 +17,212 @@ def add_player_performance_features(
     player_stats: pl.DataFrame = None
 ) -> pl.DataFrame:
     """
-    Add player performance features from weekly player stats.
+    Add TEAM-LEVEL player performance features from weekly player stats.
+
+    LEAKAGE-FREE APPROACH:
+    - Aggregates to TEAM level (not individual players)
+    - Every play gets stats (no NULL pattern based on play type)
+    - Uses PREVIOUS week's cumulative stats (shifted forward by 1)
 
     Features include:
-    QB Performance (pass plays):
-    - Completion percentage (season-to-date)
-    - Yards per attempt
-    - TD/INT ratio
-    - Passer rating
+    Team QB Performance (from all QBs on team):
+    - Team completion percentage (season-to-date)
+    - Team yards per attempt
+    - Team TD/INT ratio
+    - Team passer rating
 
-    RB Performance (rush plays):
-    - Yards per carry
-    - Rushing yards per game
-    - Rushing TDs
+    Team RB Performance (from all RBs on team):
+    - Team yards per carry
+    - Team rushing yards per game
+    - Team rushing TDs per game
 
-    WR/TE Performance (pass plays):
-    - Targets per game
-    - Catch rate
-    - Yards per reception
-    - Receiving yards per game
-
-    Rolling Performance (within season):
-    - Recent game efficiency (last 3 weeks)
-    - Hot/cold streaks
+    Team Receiving Performance (from all WRs/TEs):
+    - Team targets per game
+    - Team catch rate
+    - Team yards per reception
 
     Args:
         pbp: Play-by-play DataFrame
         player_stats: Player stats DataFrame from load_player_stats(season, 'week')
 
     Returns:
-        DataFrame with player performance features added
+        DataFrame with team-level player performance features added
     """
 
     if player_stats is None:
         # If no player stats provided, return pbp unchanged with null columns
-        return _add_null_player_features(pbp)
+        return _add_null_team_features(pbp)
 
     # ========================================================================
-    # PREPARE PLAYER STATS
+    # PREPARE TEAM-LEVEL STATS
     # ========================================================================
 
-    # Aggregate to season-to-date stats by player and week
-    # For each week, calculate cumulative stats up to that week
-
-    # QB Stats
-    qb_stats = player_stats.filter(
+    # Aggregate QB stats to TEAM level by week
+    team_qb_stats = player_stats.filter(
         pl.col('position') == 'QB'
-    ).sort(['player_id', 'season', 'week']).group_by(['player_id', 'season']).agg([
-        pl.col('week'),
-        pl.col('completions').cum_sum().alias('cum_completions'),
-        pl.col('attempts').cum_sum().alias('cum_attempts'),
-        pl.col('passing_yards').cum_sum().alias('cum_passing_yards'),
-        pl.col('passing_tds').cum_sum().alias('cum_passing_tds'),
-        pl.col('passing_interceptions').cum_sum().alias('cum_ints'),
-    ]).explode(['week', 'cum_completions', 'cum_attempts', 'cum_passing_yards',
-                'cum_passing_tds', 'cum_ints'])
-
-    qb_stats = qb_stats.with_columns([
-        # Completion percentage
-        (pl.col('cum_completions') / pl.col('cum_attempts'))
-            .fill_nan(0.0)
-            .alias('qb_completion_pct'),
-
-        # Yards per attempt
-        (pl.col('cum_passing_yards') / pl.col('cum_attempts'))
-            .fill_nan(0.0)
-            .alias('qb_yards_per_attempt'),
-
-        # TD/INT ratio
-        (pl.col('cum_passing_tds') / pl.col('cum_ints').clip(1))
-            .fill_nan(0.0)
-            .alias('qb_td_int_ratio'),
+    ).group_by(['team', 'season', 'week']).agg([
+        pl.col('completions').sum().alias('team_completions'),
+        pl.col('attempts').sum().alias('team_attempts'),
+        pl.col('passing_yards').sum().alias('team_passing_yards'),
+        pl.col('passing_tds').sum().alias('team_passing_tds'),
+        pl.col('passing_interceptions').sum().alias('team_ints'),
     ])
 
-    # RB Stats
-    rb_stats = player_stats.filter(
+    # Calculate cumulative team QB stats
+    team_qb_stats = team_qb_stats.sort(['team', 'season', 'week']).group_by(
+        ['team', 'season']
+    ).agg([
+        pl.col('week'),
+        pl.col('team_completions').cum_sum().alias('cum_team_completions'),
+        pl.col('team_attempts').cum_sum().alias('cum_team_attempts'),
+        pl.col('team_passing_yards').cum_sum().alias('cum_team_passing_yards'),
+        pl.col('team_passing_tds').cum_sum().alias('cum_team_passing_tds'),
+        pl.col('team_ints').cum_sum().alias('cum_team_ints'),
+    ]).explode([
+        'week', 'cum_team_completions', 'cum_team_attempts',
+        'cum_team_passing_yards', 'cum_team_passing_tds', 'cum_team_ints'
+    ])
+
+    # Calculate team QB efficiency metrics
+    team_qb_stats = team_qb_stats.with_columns([
+        # CRITICAL: Shift week forward to prevent look-ahead bias
+        (pl.col('week') + 1).alias('week'),
+
+        # Team completion percentage
+        (pl.col('cum_team_completions') / pl.col('cum_team_attempts'))
+            .fill_nan(0.0)
+            .alias('team_qb_completion_pct'),
+
+        # Team yards per attempt
+        (pl.col('cum_team_passing_yards') / pl.col('cum_team_attempts'))
+            .fill_nan(0.0)
+            .alias('team_qb_yards_per_attempt'),
+
+        # Team TD/INT ratio
+        (pl.col('cum_team_passing_tds') / pl.col('cum_team_ints').clip(1))
+            .fill_nan(0.0)
+            .alias('team_qb_td_int_ratio'),
+    ])
+
+    # Aggregate RB stats to TEAM level by week
+    team_rb_stats = player_stats.filter(
         pl.col('position') == 'RB'
-    ).sort(['player_id', 'season', 'week']).group_by(['player_id', 'season']).agg([
-        pl.col('week'),
-        pl.col('carries').cum_sum().alias('cum_carries'),
-        pl.col('rushing_yards').cum_sum().alias('cum_rushing_yards'),
-        pl.col('rushing_tds').cum_sum().alias('cum_rushing_tds'),
-    ]).explode(['week', 'cum_carries', 'cum_rushing_yards', 'cum_rushing_tds'])
-
-    rb_stats = rb_stats.with_columns([
-        # Yards per carry
-        (pl.col('cum_rushing_yards') / pl.col('cum_carries'))
-            .fill_nan(0.0)
-            .alias('rb_yards_per_carry'),
-
-        # Rushing TDs per game
-        (pl.col('cum_rushing_tds') / pl.col('week'))
-            .fill_nan(0.0)
-            .alias('rb_tds_per_game'),
+    ).group_by(['team', 'season', 'week']).agg([
+        pl.col('carries').sum().alias('team_carries'),
+        pl.col('rushing_yards').sum().alias('team_rushing_yards'),
+        pl.col('rushing_tds').sum().alias('team_rushing_tds'),
     ])
 
-    # WR/TE Stats
-    receiver_stats = player_stats.filter(
+    # Calculate cumulative team RB stats
+    team_rb_stats = team_rb_stats.sort(['team', 'season', 'week']).group_by(
+        ['team', 'season']
+    ).agg([
+        pl.col('week'),
+        pl.col('team_carries').cum_sum().alias('cum_team_carries'),
+        pl.col('team_rushing_yards').cum_sum().alias('cum_team_rushing_yards'),
+        pl.col('team_rushing_tds').cum_sum().alias('cum_team_rushing_tds'),
+    ]).explode(['week', 'cum_team_carries', 'cum_team_rushing_yards', 'cum_team_rushing_tds'])
+
+    # Calculate team RB efficiency metrics
+    team_rb_stats = team_rb_stats.with_columns([
+        # CRITICAL: Shift week forward to prevent look-ahead bias
+        (pl.col('week') + 1).alias('week'),
+
+        # Team yards per carry
+        (pl.col('cum_team_rushing_yards') / pl.col('cum_team_carries'))
+            .fill_nan(0.0)
+            .alias('team_rb_yards_per_carry'),
+
+        # Team rushing TDs per game (use week - 1 since shifted)
+        (pl.col('cum_team_rushing_tds') / (pl.col('week') - 1).clip(1))
+            .fill_nan(0.0)
+            .alias('team_rb_tds_per_game'),
+    ])
+
+    # Aggregate WR/TE stats to TEAM level by week
+    team_receiver_stats = player_stats.filter(
         pl.col('position').is_in(['WR', 'TE'])
-    ).sort(['player_id', 'season', 'week']).group_by(['player_id', 'season']).agg([
+    ).group_by(['team', 'season', 'week']).agg([
+        pl.col('receptions').sum().alias('team_receptions'),
+        pl.col('targets').sum().alias('team_targets'),
+        pl.col('receiving_yards').sum().alias('team_receiving_yards'),
+    ])
+
+    # Calculate cumulative team receiver stats
+    team_receiver_stats = team_receiver_stats.sort(['team', 'season', 'week']).group_by(
+        ['team', 'season']
+    ).agg([
         pl.col('week'),
-        pl.col('receptions').cum_sum().alias('cum_receptions'),
-        pl.col('targets').cum_sum().alias('cum_targets'),
-        pl.col('receiving_yards').cum_sum().alias('cum_receiving_yards'),
-    ]).explode(['week', 'cum_receptions', 'cum_targets', 'cum_receiving_yards'])
+        pl.col('team_receptions').cum_sum().alias('cum_team_receptions'),
+        pl.col('team_targets').cum_sum().alias('cum_team_targets'),
+        pl.col('team_receiving_yards').cum_sum().alias('cum_team_receiving_yards'),
+    ]).explode(['week', 'cum_team_receptions', 'cum_team_targets', 'cum_team_receiving_yards'])
 
-    receiver_stats = receiver_stats.with_columns([
-        # Catch rate
-        (pl.col('cum_receptions') / pl.col('cum_targets'))
-            .fill_nan(0.0)
-            .alias('receiver_catch_rate'),
+    # Calculate team receiver efficiency metrics
+    team_receiver_stats = team_receiver_stats.with_columns([
+        # CRITICAL: Shift week forward to prevent look-ahead bias
+        (pl.col('week') + 1).alias('week'),
 
-        # Yards per reception
-        (pl.col('cum_receiving_yards') / pl.col('cum_receptions'))
+        # Team catch rate
+        (pl.col('cum_team_receptions') / pl.col('cum_team_targets'))
             .fill_nan(0.0)
-            .alias('receiver_yards_per_reception'),
+            .alias('team_receiver_catch_rate'),
 
-        # Targets per game
-        (pl.col('cum_targets') / pl.col('week'))
+        # Team yards per reception
+        (pl.col('cum_team_receiving_yards') / pl.col('cum_team_receptions'))
             .fill_nan(0.0)
-            .alias('receiver_targets_per_game'),
+            .alias('team_receiver_yards_per_reception'),
+
+        # Team targets per game (use week - 1 since shifted)
+        (pl.col('cum_team_targets') / (pl.col('week') - 1).clip(1))
+            .fill_nan(0.0)
+            .alias('team_receiver_targets_per_game'),
     ])
 
     # ========================================================================
-    # JOIN TO PBP DATA
+    # JOIN TO PBP DATA - TEAM LEVEL (NO NULL PATTERN LEAKAGE)
     # ========================================================================
 
-    # Join QB stats (for QB on current play)
+    # Join team QB stats (for offensive team)
     pbp = pbp.join(
-        qb_stats.select([
-            'player_id', 'season', 'week', 'qb_completion_pct',
-            'qb_yards_per_attempt', 'qb_td_int_ratio'
+        team_qb_stats.select([
+            'team', 'season', 'week', 'team_qb_completion_pct',
+            'team_qb_yards_per_attempt', 'team_qb_td_int_ratio'
         ]),
-        left_on=['passer_player_id', 'season', 'week'],
-        right_on=['player_id', 'season', 'week'],
+        left_on=['posteam', 'season', 'week'],
+        right_on=['team', 'season', 'week'],
         how='left'
     )
 
-    # Join RB stats (for rusher on current play)
+    # Join team RB stats (for offensive team)
     pbp = pbp.join(
-        rb_stats.select([
-            'player_id', 'season', 'week', 'rb_yards_per_carry', 'rb_tds_per_game'
+        team_rb_stats.select([
+            'team', 'season', 'week', 'team_rb_yards_per_carry', 'team_rb_tds_per_game'
         ]),
-        left_on=['rusher_player_id', 'season', 'week'],
-        right_on=['player_id', 'season', 'week'],
+        left_on=['posteam', 'season', 'week'],
+        right_on=['team', 'season', 'week'],
         how='left'
     )
 
-    # Join receiver stats (for receiver on current play)
+    # Join team receiver stats (for offensive team)
     pbp = pbp.join(
-        receiver_stats.select([
-            'player_id', 'season', 'week', 'receiver_catch_rate',
-            'receiver_yards_per_reception', 'receiver_targets_per_game'
+        team_receiver_stats.select([
+            'team', 'season', 'week', 'team_receiver_catch_rate',
+            'team_receiver_yards_per_reception', 'team_receiver_targets_per_game'
         ]),
-        left_on=['receiver_player_id', 'season', 'week'],
-        right_on=['player_id', 'season', 'week'],
+        left_on=['posteam', 'season', 'week'],
+        right_on=['team', 'season', 'week'],
         how='left'
     )
 
-    # Fill nulls for plays without player stats
-    player_feature_cols = [
-        'qb_completion_pct', 'qb_yards_per_attempt', 'qb_td_int_ratio',
-        'rb_yards_per_carry', 'rb_tds_per_game',
-        'receiver_catch_rate', 'receiver_yards_per_reception', 'receiver_targets_per_game'
+    # Fill nulls for teams without player stats (mostly Week 1)
+    team_feature_cols = [
+        'team_qb_completion_pct', 'team_qb_yards_per_attempt', 'team_qb_td_int_ratio',
+        'team_rb_yards_per_carry', 'team_rb_tds_per_game',
+        'team_receiver_catch_rate', 'team_receiver_yards_per_reception', 'team_receiver_targets_per_game'
     ]
 
-    for col in player_feature_cols:
+    for col in team_feature_cols:
         if col in pbp.columns:
             pbp = pbp.with_columns([
                 pl.col(col).fill_null(0.0).alias(col)
@@ -191,15 +231,15 @@ def add_player_performance_features(
     return pbp
 
 
-def _add_null_player_features(pbp: pl.DataFrame) -> pl.DataFrame:
-    """Add null player feature columns if player stats not available."""
+def _add_null_team_features(pbp: pl.DataFrame) -> pl.DataFrame:
+    """Add null team feature columns if player stats not available."""
     return pbp.with_columns([
-        pl.lit(None, dtype=pl.Float64).alias('qb_completion_pct'),
-        pl.lit(None, dtype=pl.Float64).alias('qb_yards_per_attempt'),
-        pl.lit(None, dtype=pl.Float64).alias('qb_td_int_ratio'),
-        pl.lit(None, dtype=pl.Float64).alias('rb_yards_per_carry'),
-        pl.lit(None, dtype=pl.Float64).alias('rb_tds_per_game'),
-        pl.lit(None, dtype=pl.Float64).alias('receiver_catch_rate'),
-        pl.lit(None, dtype=pl.Float64).alias('receiver_yards_per_reception'),
-        pl.lit(None, dtype=pl.Float64).alias('receiver_targets_per_game'),
+        pl.lit(None, dtype=pl.Float64).alias('team_qb_completion_pct'),
+        pl.lit(None, dtype=pl.Float64).alias('team_qb_yards_per_attempt'),
+        pl.lit(None, dtype=pl.Float64).alias('team_qb_td_int_ratio'),
+        pl.lit(None, dtype=pl.Float64).alias('team_rb_yards_per_carry'),
+        pl.lit(None, dtype=pl.Float64).alias('team_rb_tds_per_game'),
+        pl.lit(None, dtype=pl.Float64).alias('team_receiver_catch_rate'),
+        pl.lit(None, dtype=pl.Float64).alias('team_receiver_yards_per_reception'),
+        pl.lit(None, dtype=pl.Float64).alias('team_receiver_targets_per_game'),
     ])

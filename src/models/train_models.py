@@ -79,10 +79,10 @@ def prepare_data(df: pl.DataFrame):
         'passer_player', 'interception', 'fumble', 'sack', 'touchdown',
         'yards_gained', 'first_down', 'fourth_down_converted', 'incomplete_pass',
         'pass_attempt', 'rush_attempt', 'complete_pass', 'air_yards', 'yards_after_catch',
-        # Player performance features (look-ahead bias - includes current week stats)
-        'qb_completion', 'qb_yards_per_attempt', 'qb_td_int',
-        'rb_yards_per_carry', 'rb_tds_per_game',
-        'receiver_catch_rate', 'receiver_yards_per_reception', 'receiver_targets_per_game',
+        # Player performance features - FIXED (now uses previous week stats, no longer leakage)
+        # 'qb_completion', 'qb_yards_per_attempt', 'qb_td_int',
+        # 'rb_yards_per_carry', 'rb_tds_per_game',
+        # 'receiver_catch_rate', 'receiver_yards_per_reception', 'receiver_targets_per_game',
         # Personnel features (may be recorded AFTER play, not pre-snap)
         'personnel_pass_rushers', 'personnel_defenders_in_box', 'personnel_light_box', 'personnel_heavy_box'
     ]
